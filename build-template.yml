@@ -1,0 +1,19 @@
+steps:
+  - powershell: wget -O $(archive) $(url)
+    displayName: Download compiler package (Windows)
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+  - bash: wget -O $(archive) $(url)
+    displayName: Download compiler package (Linux)
+    condition: eq(variables['Agent.OS'], 'Linux')
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: $(archive)
+      destinationFolder: 'ldc'
+
+  - bash: $(bindir)/dub test
+    displayName: Run unittests
+
+  - bash: $(bindir)/dub build
+    displayName: Build application
