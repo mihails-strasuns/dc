@@ -1,0 +1,5 @@
+name "dc"
+description "A minimal D application."
+authors "Mihails Strasuns"
+copyright "Copyright © 2018, Mihails Strasuns"
+license "BSL"

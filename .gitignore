@@ -1,0 +1,12 @@
+/.dub
+/dc.so
+/dc.dylib
+/dc.dll
+/dc.a
+/dc.lib
+/dc-test-*
+/dc
+*.exe
+*.o
+*.obj
+*.lst
