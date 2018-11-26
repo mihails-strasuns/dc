@@ -1,16 +1,21 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
-pool:
-  vmImage: 'Ubuntu 16.04'
+jobs:
+  - job: Linux
+    variables:
+      url: https://github.com/ldc-developers/ldc/releases/download/v1.12.0/ldc2-1.12.0-linux-x86_64.tar.xz
+      bindir: ldc/ldc2-1.12.0-linux-x86_64/bin
+      archive: ldc.tar.xz
+    pool:
+      vmImage: 'ubuntu 16.04'
+    steps:
+      - template: build-template.yml
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - job: Windows
+    variables:
+      url: https://github.com/ldc-developers/ldc/releases/download/v1.12.0/ldc2-1.12.0-windows-x86.7z
+      bindir: ldc/ldc2-1.12.0-windows-x86/bin
+      archive: ldc.7z
+    pool:
+      vmImage: 'vs2017-win2016'
+    steps:
+      - template: build-template.yml
