@@ -1,5 +1,5 @@
 name "dc"
-description "A minimal D application."
+description "D compiler switching utility"
 authors "Mihails Strasuns"
 copyright "Copyright © 2018, Mihails Strasuns"
 license "BSL"
