@@ -17,3 +17,17 @@ steps:
 
   - bash: $(bindir)/dub build
     displayName: Build application
+
+  - powershell: wget -O 7z.7z https://www.7-zip.org/a/7z1805-extra.7z
+    displayName: Download 7-zip portable package
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+  - task: ExtractFiles@1
+    displayName: Extract 7-zip binary
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+    inputs:
+      archiveFilePatterns: 7z.7z
+      destinationFolder: '7z'
+
+  - bash: $(bindir)/dub run
+    displayName: Verify downloading works

@@ -16,7 +16,7 @@ void main ()
 
     version (Windows)
     {
-        config.path7z = `C:\Program Files\7-Zip`;
+        config.path7z = Path(`.\7z`);
         // Add 7z.exe location to PATH for the current process so that it can be called
         // from shell scripts without having to access app config.
         import std.process;
