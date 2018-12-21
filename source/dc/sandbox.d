@@ -1,5 +1,5 @@
 /**
-    Asbtractions around self-contained directory sandbox for D compilers
+    Abstractions around self-contained directory sandbox for D compilers
     and libraries to be managed by this tool.
  */
 module dc.sandbox;
@@ -7,36 +7,28 @@ module dc.sandbox;
 import dc.utils.path;
 import dc.utils.reporting;
 import dc.compilers.base;
-import dc.paths;
+import dc.config;
 
 /**
     Ensures the presence of a required directory structure for
     the D toolchain sandbox
 
     Params:
-        path = where to put all D toolchain
+        paths = part of configuration describing sandbox path layout
  */
-const(Paths) initRoot(string path)
+void initSandbox(Config.Paths paths)
 {
-    Paths ret;
-
-    ret.root = Path(path);
-    ret.bin = ret.root ~ "bin";
-    ret.lib = ret.root ~ "lib";
-    ret.imports = ret.root ~ "imports";
-    ret.versions = ret.root ~ "versions";
-
     import std.file : mkdirRecurse, exists;
 
-    if (exists(path))
-        return ret;
+    auto root = paths.root;
 
-    mixin(report!("Creating D sandbox at '%s'", path));
-    
-    foreach (dir; ret.tupleof)
+    if (exists(root))
+        return;
+
+    mixin(report!("Creating D sandbox at '%s'", root));
+
+    foreach (dir; paths.tupleof)
         mkdirRecurse(dir);
-
-    return ret;
 }
 
 /**
@@ -44,10 +36,10 @@ const(Paths) initRoot(string path)
     description string and sandbox paths instance.
 
     Params:
-        paths = sandbox paths
+        config = app config
         description = string of form "compiler-version"
  */
-Compiler compiler (Paths paths, string description)
+Compiler compiler (Config config, string description)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
@@ -59,7 +51,7 @@ Compiler compiler (Paths paths, string description)
     switch (name)
     {
         case "dmd":
-            return new DMD(paths, ver);
+            return new DMD(config, ver);
         default:
             assert(false);
     }

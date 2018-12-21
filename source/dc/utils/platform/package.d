@@ -39,17 +39,29 @@ void download (string url, string path)
     Creates a symbolic link using platform-specific method
 
     Params:
-        lnk = absolute path to link file to create
         src = absolute path to source file to link
+        lnk = absolute path to link file to create
  */
-void link (string lnk, string src)
+void link (string src, string lnk)
 {
     import std.exception : enforce;
     import std.path : isAbsolute;
 
     enforce(isAbsolute(lnk));
     enforce(isAbsolute(src));
-    platform.link(lnk, src);
+    
+    enforce(platform.link(src, lnk) == 0, "Couldn't create a symlink");
+}
+
+/**
+    Deletes a symbolic link without affecting underlying file/dir
+
+    Params:
+        lnk = absolute path to link file to delete
+ */
+void unlink (string lnk)
+{
+    platform.unlink(lnk);
 }
 
 /**
