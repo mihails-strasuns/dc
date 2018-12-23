@@ -9,6 +9,10 @@ jobs:
       vmImage: 'ubuntu 16.04'
     steps:
       - template: build-template.yml
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: dc
+          artifactName: binary-linux
 
   - job: Windows
     variables:
@@ -19,3 +23,7 @@ jobs:
       vmImage: 'vs2017-win2016'
     steps:
       - template: build-template.yml
+      - task: PublishBuildArtifacts@1
+        inputs:
+          pathtoPublish: dc.exe
+          artifactName: binary-windows

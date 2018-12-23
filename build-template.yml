@@ -34,3 +34,4 @@ steps:
 
   - bash: sandbox/bin/dmd -run test/sample.d
     displayName: Verify downloaded compiler works
+
