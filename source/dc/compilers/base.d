@@ -1,6 +1,6 @@
 module dc.compilers.base;
 
-import dc.paths;
+import dc.config;
 
 /**
     Compiler management abstraction. Specific implementation has to know
@@ -9,12 +9,12 @@ import dc.paths;
  */
 abstract class Compiler
 {
-    protected Paths paths;
+    protected Config config;
     protected string ver;
 
-    this(Paths paths, string ver)
+    this(Config config, string ver)
     {
-        this.paths = paths;
+        this.config = config;
         this.ver = ver;
     }
 

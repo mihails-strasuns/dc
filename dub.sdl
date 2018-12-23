@@ -3,3 +3,8 @@ description "D compiler switching utility"
 authors "Mihails Strasuns"
 copyright "Copyright © 2018, Mihails Strasuns"
 license "BSL"
+
+buildRequirements "allowWarnings"
+dflags "-static"
+
+dependency "inid" version="~>0.1.0"

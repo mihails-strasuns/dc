@@ -58,15 +58,37 @@ ProcessResult powershell (string[] commands...)
 }
 
 /**
-    Creates symlink on Windows using `mklink` command built into cmd.exe
+    Creates symlink on Windows using PowerShell `New-Item`
 
     Params:
-        lnk = absolute path to link file to create
         src = absolute path to source file to link
+        lnk = absolute path to link file to create
  */
-void link (string lnk, string src)
+int link (string src, string lnk)
 {
-    powershell("cmd", "/c", "mklink", lnk, src);
+    import std.format;
+    
+    auto cmd = format(
+        "cp -r %s %s",
+        src,
+        lnk,
+    );
+    
+    return powershell(cmd).status;
+}
+
+/**
+    Deletes symlink on Windows without affecting linked dir
+
+    Params:
+        lnk = absolute path to link file to delete
+ */
+void unlink (string lnk)
+{
+    import std.format;
+    
+    auto cmd = format("Remove-Item -Recurse -Force %s", lnk);
+    powershell(cmd);
 }
 
 /**
@@ -93,11 +115,14 @@ void extract (string archive, string dst)
 {
     import std.exception : enforce;
     import std.string : endsWith;
+    import std.format;
     
     enforce(archive.endsWith(".7z"));
 
-    // TODO:
-    assert(false);
+    auto status = powershell(
+        format("7za.exe x -o%s %s", dst, archive)).status;
+
+    enforce(status == 0, "Extracting has failed");
 }
 
 /**
@@ -112,11 +137,18 @@ void checkRequirements ()
         "Couldn't spawn PowerShell sub-process"
     );
     
+    // enforce(
+    //     powershell(
+    //         "$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())",
+    //         "$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)"
+    //     ).stdout == [ "True" ],
+    //     "Must run this program as administrator (for mklink to work)"
+    // );
+
     enforce(
         powershell(
-            "$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())",
-            "$currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)"
-        ).stdout == [ "True" ],
-        "Must run this program as administrator (for mklink to work)"
+            "7za.exe -h"
+        ).status == 0,
+        "7za.exe must be on PATH (you can specify one via config.ini)"
     );
 }

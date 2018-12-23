@@ -12,20 +12,41 @@ version(Posix):
 int download (string url, string path)
 {
     import std.process;
-    return execute([ "curl", "-o", path, "-Ss", url ]).status;
+    return execute([ "curl", "-o", path, "-LSs", url ]).status;
 }
 
 /**
     Creates a symlink using `ln`
 
     Params:
-        lnk = absolute path to link file to create
         src = absolute path to source file to link
+        lnk = absolute path to link file to create
  */
-void link (string lnk, string src)
+int link (string src, string lnk)
 {
-    import std.file : symlink;
-    symlink(lnk, src);
+    import std.file : symlink, FileException;
+    import std.exception;
+    try
+    {
+        symlink(src, lnk);
+        return 0;
+    }
+    catch (FileException)
+        return 1;
+}
+
+/**
+    Deletes symlink as a regular file
+
+    Params:
+        lnk = absolute path to link file to delete
+ */
+void unlink (string lnk)
+{
+    import std.file;
+    try
+        remove(lnk);
+    catch (FileException) { }
 }
 
 /**
@@ -33,21 +54,25 @@ void link (string lnk, string src)
 
     Params:
         archive = absolute path to link file to create
-        src = absolute path to source file to link
+        dst = absolute path to directory to extract to
  */
 void extract (string archive, string dst)
 {
     import std.exception : enforce;
     import std.string : endsWith;
     import std.process : execute;
-    
+    import std.file : mkdirRecurse;
+
+    mkdirRecurse(dst);
+
     enforce(archive.endsWith(".tar.xz"));
 
-    execute([ "tar",
+    auto status = execute([ "tar",
         "-xf", archive,
         "-C", dst,
-        "--one-top-level"
-    ]);
+    ]).status;
+
+    enforce(status == 0, "Extracting has failed");
 }
 
 /**
@@ -55,7 +80,7 @@ void extract (string archive, string dst)
  */
 void checkRequirements ()
 {
-    import std.exception : enforce;        
+    import std.exception : enforce;
     import std.process;
 
     void checkPresent(string binary)
