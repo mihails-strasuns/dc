@@ -31,3 +31,6 @@ steps:
 
   - bash: $(bindir)/dub run
     displayName: Verify downloading works
+
+  - bash: sandbox/bin/dmd -run test/sample.d
+    displayName: Verify downloaded compiler works
