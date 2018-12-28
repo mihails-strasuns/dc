@@ -116,11 +116,18 @@ void extract (string archive, string dst)
     import std.exception : enforce;
     import std.string : endsWith;
     import std.format;
-    
+
     enforce(archive.endsWith(".7z"));
 
+    string binary_name;
+
+    if (powershell("7za.exe -h").status == 0)
+        binary_name = "7za.exe";
+    else
+        binary_name = "7z.exe";
+
     auto status = powershell(
-        format("7za.exe x -o%s %s", dst, archive)).status;
+        format("%s x -o%s %s", binary_name, dst, archive)).status;
 
     enforce(status == 0, "Extracting has failed");
 }
@@ -146,9 +153,8 @@ void checkRequirements ()
     // );
 
     enforce(
-        powershell(
-            "7za.exe -h"
-        ).status == 0,
-        "7za.exe must be on PATH (you can specify one via config.ini)"
+        powershell("7za.exe -h").status == 0
+            || powershell("7z.exe -h").status == 0,
+        "Either 7z.exe or 7za.exe must be on PATH (you can specify one via config file)"
     );
 }
