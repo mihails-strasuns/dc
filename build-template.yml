@@ -29,9 +29,9 @@ steps:
       archiveFilePatterns: 7z.7z
       destinationFolder: '7z'
 
-  - bash: $(bindir)/dub run
+  - bash: $(bindir)/dub run -- use dmd-2.081.2
     displayName: Verify downloading works
 
-  - bash: sandbox/bin/dmd -run test/sample.d
+  - bash: D/bin/dmd -run test/sample.d
     displayName: Verify downloaded compiler works
 

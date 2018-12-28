@@ -11,3 +11,4 @@
 *.obj
 *.lst
 /sandbox
+dc.cfg

@@ -5,28 +5,63 @@ import dc.config;
 import dc.utils.path;
 import dc.utils.platform : checkRequirements;
 
-void main ()
+void main (string[] args)
 {
-    Config config;
-    config.paths.root = Path("sandbox");
-    config.paths.bin = config.paths.root ~ "bin";
-    config.paths.lib = config.paths.root ~ "lib";
-    config.paths.versions = config.paths.root ~ "versions";
-    config.paths.imports = config.paths.root ~ "imports";
+    auto config = readConfig();
 
-    version (Windows)
-    {
-        config.path7z = Path(`.\7z`);
-        // Add 7z.exe location to PATH for the current process so that it can be called
-        // from shell scripts without having to access app config.
-        import std.process;
-        environment["path"] = environment["path"] ~ ";" ~ config.path7z ~ ";";
-    }
+    import std.algorithm : filter, startsWith;
+    import std.array : array;
+
+    args = filterFlags(args);
+
+    import std.exception;
+    enforce(args.length > 1, "Must specify an action");
+    auto action = args[0];
 
     checkRequirements();
     initSandbox(config.paths);
-    auto compiler_str = "dmd-2.081.2";
 
+    switch(action)
+    {
+        case "use":
+            if (disableOldCompiler(config, args[1]))
+            {
+                auto c = compiler(config, args[1]);
+                c.fetch();
+                c.enable();
+            }
+            break;
+
+        case "fetch":
+            if (disableOldCompiler(config, args[1]))
+            {
+                auto c = compiler(config, args[1]);
+                c.fetch();
+            }
+            break;
+
+        default: enforce(false);
+    }
+}
+
+string[] filterFlags (string[] args)
+{
+    import std.range.primitives;
+
+    typeof(return) result;
+    args = args[1 .. $];
+
+    foreach (i, _; args)
+    {
+        if (args[i].front != '-' && (i == 0 || args[i-1][0] != '-'))
+            result ~= args[i];
+    }
+
+    return result;
+}
+
+bool disableOldCompiler (Config config, string compiler_str)
+{
     import std.file : readText, exists;
 
     if (exists(config.paths.root ~ "USED"))
@@ -34,15 +69,14 @@ void main ()
         auto current_compiler_str = readText(config.paths.root ~ "USED");
 
         if (compiler_str == current_compiler_str)
-            return;
+            return false;
         else
         {
             auto current = compiler(config, current_compiler_str);
             current.disable();
+            return true;
         }
     }
 
-    auto c = compiler(config, compiler_str);
-    c.fetch();
-    c.enable();
+    return true;
 }

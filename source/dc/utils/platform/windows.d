@@ -24,12 +24,12 @@ struct ProcessResult
     Params:
         commands = list of commands to run, all will share the
             same execution context (and thus can share variables)
-    
+
     Returns:
         execution result
  */
 ProcessResult powershell (string[] commands...)
-{    
+{
     import std.algorithm : map;
     import std.range : join;
 
@@ -42,10 +42,10 @@ ProcessResult powershell (string[] commands...)
         [ environment["SYSTEMROOT"] ~ "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
             "-NonInteractive", "-Command" ] ~ command_s,
         Redirect.stdout | Redirect.stderr
-    );        
-    
+    );
+
     auto status = wait(proc.pid);
-        
+
     import std.array;
     import std.ascii : newline;
     import std.stdio : KeepTerminator;
@@ -67,13 +67,13 @@ ProcessResult powershell (string[] commands...)
 int link (string src, string lnk)
 {
     import std.format;
-    
+
     auto cmd = format(
         "cp -r %s %s",
         src,
         lnk,
     );
-    
+
     return powershell(cmd).status;
 }
 
@@ -86,7 +86,7 @@ int link (string src, string lnk)
 void unlink (string lnk)
 {
     import std.format;
-    
+
     auto cmd = format("Remove-Item -Recurse -Force %s", lnk);
     powershell(cmd);
 }
@@ -137,13 +137,13 @@ void extract (string archive, string dst)
  */
 void checkRequirements ()
 {
-    import std.exception : enforce;    
-    
+    import std.exception : enforce;
+
     enforce(
         powershell("$PSVersionTable.PSVersion").status == 0,
         "Couldn't spawn PowerShell sub-process"
     );
-    
+
     // enforce(
     //     powershell(
     //         "$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())",
