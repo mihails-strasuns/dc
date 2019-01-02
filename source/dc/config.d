@@ -33,7 +33,7 @@ struct Config
     version(Windows)
     {
         /// Path to 7z.exe or 7za.exe
-        Path path7z = ".\\7z";
+        Path path7z;;
     }
 
     void finalizeConfig ()
@@ -49,6 +49,9 @@ struct Config
 
         version (Windows)
         {
+            if (this.path7z.length == 0)
+                this.path7z = Path(".\\7z");
+
             // Add 7z.exe location to PATH for the current process so that it can be called
             // from shell scripts without having to access app config.
             import std.process;
