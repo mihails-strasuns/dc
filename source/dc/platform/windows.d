@@ -83,7 +83,7 @@ class WindowsPlatform : Platform
         import std.format;
         import std.exception;
 
-        enforce(powershell(format("wget -O %s %s", path, url)).status == 0);
+        enforce(powershell(format(`wget -O "%s" "%s"`, path, url)).status == 0);
     }
 
     /// See `dc.platform.api.Platform`
@@ -93,7 +93,7 @@ class WindowsPlatform : Platform
         import std.exception;
 
         auto cmd = format(
-            "cp -r %s %s",
+            `cp -r "%s" "%s"`,
             src,
             dst,
         );
@@ -106,7 +106,7 @@ class WindowsPlatform : Platform
     {
         import std.format;
 
-        auto cmd = format("Remove-Item -Recurse -Force %s", dst);
+        auto cmd = format(`Remove-Item -Recurse -Force "%s"`, dst);
         powershell(cmd);
     }
 
