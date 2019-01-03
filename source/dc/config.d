@@ -33,7 +33,8 @@ struct Config
     version(Windows)
     {
         /// Path to 7z.exe or 7za.exe
-        Path path7z;;
+        @cfg("path_to_7z") @cli("path-to-7z")
+        Path path7z;
     }
 
     void finalizeConfig ()
