@@ -20,7 +20,7 @@ void main (string[] args)
     initSandbox(config.paths);
 
     import dc.platform.construct;
-    auto platform = initializePlatform();
+    auto platform = initializePlatform(config);
 
     switch(action)
     {

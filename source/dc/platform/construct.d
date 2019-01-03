@@ -3,32 +3,31 @@ module dc.platform.construct;
 import dc.platform.api;
 import dc.platform.windows;
 import dc.platform.posix;
+import dc.config;
 
 /**
     Constructs matching Platform implementation for the current platform
     while also checking all necessary prerequisistes.
  */
-public Platform initializePlatform ()
+public Platform initializePlatform (Config config)
 {
     import std.exception : enforce;
 
     version (Windows)
-    {      
+    {
+        import std.format;
+
         enforce(
             WindowsPlatform.powershell("$PSVersionTable.PSVersion").status == 0,
                 "Couldn't spawn PowerShell sub-process"
         );
 
-        string binary7z;
+        enforce(
+            WindowsPlatform.powershell(format(`& "%s" -h`, config.path7z)).status == 0,
+            "Path to 7z.exe or 7za.exe must be specified via configuration file or CLI argument"
+        );
 
-        if (WindowsPlatform.powershell("7za.exe -h").status == 0)
-            binary7z = "7za.exe";
-        else if (WindowsPlatform.powershell("7z.exe -h").status == 0)
-            binary7z = "7z.exe";
-        else
-            throw new Exception ("Either 7z.exe or 7za.exe must be on PATH (you can specify one via config file)");
-
-        return new WindowsPlatform(binary7z);
+        return new WindowsPlatform(config.path7z);
     }
     else version (Posix)
     {

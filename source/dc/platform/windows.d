@@ -120,7 +120,7 @@ class WindowsPlatform : Platform
         enforce(archive.endsWith(".7z"));
 
         auto status = powershell(
-            format("%s x -o%s %s", this.binary7z, dst, archive)).status;
+            format(`& "%s" x -o"%s" "%s"`, this.binary7z, dst, archive)).status;
 
         enforce(status == 0, "Extracting has failed");
     }
