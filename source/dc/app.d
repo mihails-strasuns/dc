@@ -7,12 +7,11 @@ import dc.platform.api;
 
 void main (string[] args)
 {
-    auto config = readConfig();
+    import simpleconfig;
 
-    import std.algorithm : filter, startsWith;
-    import std.array : array;
-
-    args = filterFlags(args);
+    Config config;
+    args = readConfiguration(config);
+    args = args[1 .. $];
 
     import std.exception;
     enforce(args.length > 1, "Must specify an action");
@@ -44,22 +43,6 @@ void main (string[] args)
 
         default: enforce(false);
     }
-}
-
-string[] filterFlags (string[] args)
-{
-    import std.range.primitives;
-
-    typeof(return) result;
-    args = args[1 .. $];
-
-    foreach (i, _; args)
-    {
-        if (args[i].front != '-' && (i == 0 || args[i-1][0] != '-'))
-            result ~= args[i];
-    }
-
-    return result;
 }
 
 bool disableOldCompiler (Config config, Platform platform, string compiler_str)

@@ -60,11 +60,3 @@ struct Config
         }
     }
 }
-
-///
-Config readConfig ()
-{
-    Config config;
-    readConfiguration(config);
-    return config;
-}
