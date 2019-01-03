@@ -7,4 +7,4 @@ license "BSL"
 buildRequirements "allowWarnings"
 dflags "-static"
 
-dependency "inid" version="~>0.1.0"
+dependency "simpleconfig" version="~>0.1"

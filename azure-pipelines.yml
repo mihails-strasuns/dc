@@ -16,8 +16,8 @@ jobs:
 
   - job: Windows
     variables:
-      url: https://github.com/ldc-developers/ldc/releases/download/v1.13.0/ldc2-1.13.0-windows-x86.7z
-      bindir: ldc/ldc2-1.13.0-windows-x86/bin
+      url: https://github.com/ldc-developers/ldc/releases/download/v1.13.0/ldc2-1.13.0-windows-x64.7z
+      bindir: ldc/ldc2-1.13.0-windows-x64/bin
       archive: ldc.7z
     pool:
       vmImage: 'vs2017-win2016'
