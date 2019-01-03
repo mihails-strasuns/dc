@@ -3,7 +3,7 @@ module dc.app;
 import dc.sandbox;
 import dc.config;
 import dc.utils.path;
-import dc.utils.platform : checkRequirements;
+import dc.platform.api;
 
 void main (string[] args)
 {
@@ -18,24 +18,26 @@ void main (string[] args)
     enforce(args.length > 1, "Must specify an action");
     auto action = args[0];
 
-    checkRequirements();
     initSandbox(config.paths);
+
+    import dc.platform.construct;
+    auto platform = initializePlatform();
 
     switch(action)
     {
         case "use":
-            if (disableOldCompiler(config, args[1]))
+            if (disableOldCompiler(config, platform, args[1]))
             {
-                auto c = compiler(config, args[1]);
+                auto c = compiler(config, platform, args[1]);
                 c.fetch();
                 c.enable();
             }
             break;
 
         case "fetch":
-            if (disableOldCompiler(config, args[1]))
+            if (disableOldCompiler(config, platform, args[1]))
             {
-                auto c = compiler(config, args[1]);
+                auto c = compiler(config, platform, args[1]);
                 c.fetch();
             }
             break;
@@ -60,7 +62,7 @@ string[] filterFlags (string[] args)
     return result;
 }
 
-bool disableOldCompiler (Config config, string compiler_str)
+bool disableOldCompiler (Config config, Platform platform, string compiler_str)
 {
     import std.file : readText, exists;
 
@@ -72,7 +74,7 @@ bool disableOldCompiler (Config config, string compiler_str)
             return false;
         else
         {
-            auto current = compiler(config, current_compiler_str);
+            auto current = compiler(config, platform, current_compiler_str);
             current.disable();
             return true;
         }

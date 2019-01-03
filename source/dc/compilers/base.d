@@ -1,6 +1,7 @@
 module dc.compilers.base;
 
 import dc.config;
+import dc.platform.api;
 
 /**
     Compiler management abstraction. Specific implementation has to know
@@ -9,12 +10,16 @@ import dc.config;
  */
 abstract class Compiler
 {
-    protected Config config;
-    protected string ver;
+    protected {
+        Config config;
+        Platform platform;
+        string ver;
+    }
 
-    this(Config config, string ver)
+    this (Config config, Platform platform, string ver)
     {
         this.config = config;
+        this.platform = platform;
         this.ver = ver;
     }
 

@@ -7,6 +7,7 @@ module dc.sandbox;
 import dc.utils.path;
 import dc.utils.reporting;
 import dc.compilers.base;
+import dc.platform.api;
 import dc.config;
 
 /**
@@ -37,9 +38,10 @@ void initSandbox(Config.Paths paths)
 
     Params:
         config = app config
+        platform = abstraction over platform utils
         description = string of form "compiler-version"
  */
-Compiler compiler (Config config, string description)
+Compiler compiler (Config config, Platform platform, string description)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
@@ -51,7 +53,7 @@ Compiler compiler (Config config, string description)
     switch (name)
     {
         case "dmd":
-            return new DMD(config, ver);
+            return new DMD(config, platform, ver);
         default:
             assert(false);
     }

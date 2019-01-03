@@ -8,13 +8,14 @@ class DMD : Compiler
     import dc.utils.reporting;
     import dc.config;
     import dc.utils.path;
+    import dc.platform.api;
 
     private Path archive;
     private Path source;
 
-    this (Config config, string ver)
+    this (Config config, Platform platform, string ver)
     {
-        super(config, ver);
+        super(config, platform, ver);
 
         version (Windows)
             this.archive = this.config.paths.versions ~ ("dmd-" ~ ver ~ ".7z");
@@ -29,12 +30,10 @@ class DMD : Compiler
         import std.format;
 
         if (!exists(this.archive))
-        {
-            import dc.utils.platform : download;
-
+        {            
             version (Windows)
             {
-                download(
+                this.platform.download(
                     format("http://downloads.dlang.org/releases/2.x/%s/dmd.%s.windows.7z",
                         this.ver, this.ver),
                     this.archive
@@ -42,7 +41,7 @@ class DMD : Compiler
             }
             else version (Posix)
             {
-                download(
+                this.platform.download(
                     format("http://downloads.dlang.org/releases/2.x/%s/dmd.%s.linux.tar.xz",
                         this.ver, this.ver),
                     this.archive
@@ -51,16 +50,14 @@ class DMD : Compiler
         }
 
         if (!exists(this.source))
-        {
-            import dc.utils.platform : extract;
-            extract(this.archive, this.source);
+        {            
+            this.platform.extract(this.archive, this.source);
         }
     }
 
     override void enable ()
     {
         import std.file : write;
-        import dc.utils.platform : link;
 
         auto source = this.source;
         mixin(report!("Switching to %s", source));
@@ -70,15 +67,15 @@ class DMD : Compiler
         version (Windows)
         {
             auto bin_source = this.source ~ "dmd2" ~ "windows" ~ "bin";
-            link(bin_source ~ "dmd.exe", this.config.paths.bin ~ "dmd.exe");
-            link(bin_source ~ "dub.exe", this.config.paths.bin ~ "dub.exe");            
+            this.platform.enable(bin_source ~ "dmd.exe", this.config.paths.bin ~ "dmd.exe");
+            this.platform.enable(bin_source ~ "dub.exe", this.config.paths.bin ~ "dub.exe");            
 
             auto lib_source = this.source ~ "dmd2" ~ "windows" ~ "lib64";
-            link(
+            this.platform.enable(
                 lib_source ~ "phobos64.lib",
                 this.config.paths.lib ~ "phobos64.lib"
             );
-            link(
+            this.platform.enable(
                 lib_source ~ "curl.lib",
                 this.config.paths.lib ~ "curl.lib"
             );
@@ -86,30 +83,30 @@ class DMD : Compiler
         else version (Posix)
         {
             auto bin_source = this.source ~ "dmd2" ~ "linux" ~ "bin64";
-            link(bin_source ~ "dmd", this.config.paths.bin ~ "dmd");
-            link(bin_source ~ "dub", this.config.paths.bin ~ "dub");
+            this.platform.enable(bin_source ~ "dmd", this.config.paths.bin ~ "dmd");
+            this.platform.enable(bin_source ~ "dub", this.config.paths.bin ~ "dub");
             
             auto lib_source = this.source ~ "dmd2" ~ "linux" ~ "lib64";
-            link(
+            this.platform.enable(
                 lib_source ~ "libphobos2.a",
                 this.config.paths.lib ~ "libphobos2.a"
             );
         }
 
         auto import_source = this.source ~ "dmd2" ~ "src";
-        link(
+        this.platform.enable(
             import_source ~ "phobos/std",
             this.config.paths.imports ~ "std"
         );
-        link(
+        this.platform.enable(
             import_source ~ "druntime/import/core",
             this.config.paths.imports ~ "core"
         );
-        link(
+        this.platform.enable(
             import_source ~ "druntime/import/etc",
             this.config.paths.imports ~ "etc"
         );
-        link(
+        this.platform.enable(
             import_source ~ "druntime/import/object.d",
             this.config.paths.imports ~ "object.d"
         );
@@ -140,32 +137,29 @@ class DMD : Compiler
 
     override void disable ()
     {
-        import dc.utils.platform : unlink;
-        import std.file : remove;
-
         version (Windows)
         {
-            unlink(this.config.paths.bin ~ "dmd.exe");
-            unlink(this.config.paths.bin ~ "dub.exe");            
-            unlink(this.config.paths.lib ~ "phobos64.lib");
-            unlink(this.config.paths.lib ~ "curl.lib");
+            this.platform.disable(this.config.paths.bin ~ "dmd.exe");
+            this.platform.disable(this.config.paths.bin ~ "dub.exe");            
+            this.platform.disable(this.config.paths.lib ~ "phobos64.lib");
+            this.platform.disable(this.config.paths.lib ~ "curl.lib");
 
-            remove(this.config.paths.bin ~ "sc.ini");
+            this.platform.disable(this.config.paths.bin ~ "sc.ini");
         }
         else version (Posix)
         {
-            unlink(this.config.paths.bin ~ "dmd");
-            unlink(this.config.paths.bin ~ "dub");            
-            unlink(this.config.paths.lib ~ "libphobos2.a");
+            this.platform.disable(this.config.paths.bin ~ "dmd");
+            this.platform.disable(this.config.paths.bin ~ "dub");            
+            this.platform.disable(this.config.paths.lib ~ "libphobos2.a");
             
-            remove(this.config.paths.bin ~ "dmd.conf");
+            this.platform.disable(this.config.paths.bin ~ "dmd.conf");
         }
 
-        unlink(this.config.paths.imports ~ "std");
-        unlink(this.config.paths.imports ~ "core");
-        unlink(this.config.paths.imports ~ "etc");
-        unlink(this.config.paths.imports ~ "object.d");
+        this.platform.disable(this.config.paths.imports ~ "std");
+        this.platform.disable(this.config.paths.imports ~ "core");
+        this.platform.disable(this.config.paths.imports ~ "etc");
+        this.platform.disable(this.config.paths.imports ~ "object.d");
 
-        remove(this.config.paths.root ~ "USED");
+        this.platform.disable(this.config.paths.root ~ "USED");
     }
  }
