@@ -4,7 +4,7 @@
 module dc.config;
 
 import dc.utils.path;
-import simpleconfig;
+import simpleconfig.attributes;
 
 /// Stores all configuration used by the rest of the app
 struct Config
@@ -33,7 +33,8 @@ struct Config
     version(Windows)
     {
         /// Path to 7z.exe or 7za.exe
-        Path path7z;;
+        @cfg("path_to_7z") @cli("path-to-7z")
+        Path path7z;
     }
 
     void finalizeConfig ()
@@ -49,21 +50,14 @@ struct Config
 
         version (Windows)
         {
-            if (this.path7z.length == 0)
-                this.path7z = Path(".\\7z");
+            // default is currently chosen with CI in mind, should
+            // be adjusted in final version:
 
-            // Add 7z.exe location to PATH for the current process so that it can be called
-            // from shell scripts without having to access app config.
-            import std.process;
-            environment["path"] = environment["path"] ~ ";" ~ this.path7z ~ ";";
+            if (this.path7z.length == 0)
+                this.path7z = Path(".\\7z\\7za.exe");
         }
     }
 }
 
 ///
-Config readConfig ()
-{
-    Config config;
-    readConfiguration(config);
-    return config;
-}
+Config config;

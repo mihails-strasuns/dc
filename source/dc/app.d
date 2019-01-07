@@ -1,82 +1,67 @@
 module dc.app;
 
-import dc.sandbox;
+import dc.dc;
 import dc.config;
 import dc.utils.path;
-import dc.utils.platform : checkRequirements;
+import dc.platform.api;
+import dc.exception;
+import std.experimental.logger;
 
 void main (string[] args)
 {
-    auto config = readConfig();
-
-    import std.algorithm : filter, startsWith;
-    import std.array : array;
-
-    args = filterFlags(args);
-
-    import std.exception;
-    enforce(args.length > 1, "Must specify an action");
-    auto action = args[0];
-
-    checkRequirements();
-    initSandbox(config.paths);
-
-    switch(action)
+    try
     {
-        case "use":
-            if (disableOldCompiler(config, args[1]))
-            {
-                auto c = compiler(config, args[1]);
-                c.fetch();
-                c.enable();
-            }
-            break;
+        import simpleconfig;
+        import dc.platform;
 
-        case "fetch":
-            if (disableOldCompiler(config, args[1]))
-            {
-                auto c = compiler(config, args[1]);
-                c.fetch();
-            }
-            break;
+        args = readConfiguration(config);
+        args = args[1 .. $];
 
-        default: enforce(false);
+        configureLogging();
+        initializePlatform();
+        initializeToolchainDir(config.paths);
+        auto context = parseAction(args);
+        handle(context);
     }
-}
-
-string[] filterFlags (string[] args)
-{
-    import std.range.primitives;
-
-    typeof(return) result;
-    args = args[1 .. $];
-
-    foreach (i, _; args)
+    catch (DcException e)
     {
-        if (args[i].front != '-' && (i == 0 || args[i-1][0] != '-'))
-            result ~= args[i];
-    }
+        error(e.msg);
 
-    return result;
-}
-
-bool disableOldCompiler (Config config, string compiler_str)
-{
-    import std.file : readText, exists;
-
-    if (exists(config.paths.root ~ "USED"))
-    {
-        auto current_compiler_str = readText(config.paths.root ~ "USED");
-
-        if (compiler_str == current_compiler_str)
-            return false;
-        else
+        if (e.details.length)
         {
-            auto current = compiler(config, current_compiler_str);
-            current.disable();
-            return true;
+            info("Additional information:\n");
+            info(e.details);
         }
     }
+    catch (HelpMsgException)
+    {
+        info("Usage: dc COMMAND COMPILER [OPTIONS]");
+        info("");
+        info("COMMAND: action to perform");
+        info("\tuse - switch to specified compiler, disabling the current one if present");
+        info("\tfetch - download specified compiler distribution without affecting the current one");
+        info("");
+        info("COMPILER: compiler description string");
+        info("\tdmd-2.099.9 - example, describes DMD compiler of version 2.099.9");
+    }
+}
 
-    return true;
+void configureLogging ()
+{
+    static class SimpleLogger : Logger
+    {
+        this (LogLevel lv)
+        {
+            super(lv);
+        }
+
+        override void writeLogMsg (ref LogEntry payload)
+        {
+            import std.stdio;
+            writeln(payload.msg);
+        }
+}
+
+    // TODO: verbosity levels
+    sharedLog = new SimpleLogger(LogLevel.info);
 }
