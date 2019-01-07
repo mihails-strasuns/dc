@@ -7,21 +7,6 @@ import dc.platform.api;
 class WindowsPlatform : Platform
 {
     /**
-        Eager replacement of result struct from std.process
-
-        Provides all stdout/stderr output already collected.
-    */
-    static struct ProcessResult
-    {
-        /// return status
-        int status;
-        /// lines of stdout
-        string[] stdout;
-        /// lines of stderr
-        string[] stderr;
-    }
-
-    /**
         Finds powershell executable and tries to run provided
         commands inside it.
 
@@ -40,7 +25,6 @@ class WindowsPlatform : Platform
         auto command_s = commands.join("; ");
 
         import std.process;
-        import std.exception : enforce;
 
         auto proc = pipeProcess(
             [ environment["SYSTEMROOT"] ~ "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
@@ -50,14 +34,14 @@ class WindowsPlatform : Platform
 
         auto status = wait(proc.pid);
 
-        import std.array;
         import std.ascii : newline;
         import std.stdio : KeepTerminator;
+        import std.range : join;
 
         return ProcessResult(
             status,
-            proc.stdout.byLineCopy(KeepTerminator.no, newline).array(),
-            proc.stderr.byLineCopy(KeepTerminator.no, newline).array()
+            proc.stdout.byLine(KeepTerminator.no, newline).join("\n").idup,
+            proc.stderr.byLine(KeepTerminator.no, newline).join("\n").idup
         );
     }
 
@@ -83,7 +67,9 @@ class WindowsPlatform : Platform
         import std.format;
         import std.exception;
 
-        enforce(powershell(format(`wget -O "%s" "%s"`, path, url)).status == 0);
+        auto result = powershell(format(`wget -O "%s" "%s"`, path, url));
+        if (result.status != 0)
+            throw new DownloadFailure(url, result.stderr);
     }
 
     /// See `dc.platform.api.Platform`
@@ -92,13 +78,9 @@ class WindowsPlatform : Platform
         import std.format;
         import std.exception;
 
-        auto cmd = format(
-            `cp -r "%s" "%s"`,
-            src,
-            dst,
-        );
-
-        enforce(powershell(cmd).status == 0);
+        auto result = powershell(format(`cp -r "%s" "%s"`, src, dst));
+        if (result.status != 0)
+            throw new FileFailure(dst, result.stderr);
     }
 
     /// See `dc.platform.api.Platform`
@@ -106,8 +88,7 @@ class WindowsPlatform : Platform
     {
         import std.format;
 
-        auto cmd = format(`Remove-Item -Recurse -Force "%s"`, dst);
-        powershell(cmd);
+        powershell(format(`Remove-Item -Recurse -Force "%s"`, dst));
     }
 
     /// See `dc.platform.api.Platform`
@@ -117,11 +98,8 @@ class WindowsPlatform : Platform
         import std.string : endsWith;
         import std.format;
 
-        enforce(archive.endsWith(".7z"));
-
-        auto status = powershell(
-            format(`& "%s" x -o"%s" "%s"`, this.binary7z, dst, archive)).status;
-
-        enforce(status == 0, "Extracting has failed");
+        auto result = powershell(format(`& "%s" x -o"%s" "%s"`, this.binary7z, dst, archive));
+        if (result.status != 0)
+            throw new ExtractionFailure(archive, dst, result.stderr);
     }
 }

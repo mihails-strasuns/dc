@@ -4,27 +4,48 @@ version(Posix):
 
 import dc.platform.api;
 
-class PosixPlatform : Platfrom
+class PosixPlatform : Platform
 {
-    /// See `dc.platform.api.Platform`
-    int download (string url, string path)
+    static ProcessResult run (string[] cmd)
     {
         import std.process;
-        return execute([ "curl", "-o", path, "-LSs", url ]).status;
+
+        auto proc = pipeProcess(cmd, Redirect.stdout | Redirect.stderr);
+        auto status = wait(proc.pid);
+
+        import std.ascii : newline;
+        import std.stdio : KeepTerminator;
+        import std.range : join;
+
+        return ProcessResult(
+            status,
+            proc.stdout.byLine(KeepTerminator.no, newline).join("\n").idup,
+            proc.stderr.byLine(KeepTerminator.no, newline).join("\n").idup
+        );
     }
 
     /// See `dc.platform.api.Platform`
-    int enable (string src, string dst)
+    void download (string url, string path)
+    {
+        import std.format;
+        import std.exception;
+
+        auto result = run([ "curl", "-o", path, "-LSs", url ]);
+        if (result.status != 0)
+            throw new DownloadFailure(url, result.stderr);
+    }
+
+    /// See `dc.platform.api.Platform`
+    void enable (string src, string dst)
     {
         import std.file : symlink, FileException;
-        import std.exception;
+
         try
         {
             symlink(src, dst);
-            return 0;
         }
-        catch (FileException)
-            return 1;
+        catch (FileException e)
+            throw new FileFailure(dst, e.msg);
     }
 
     /// See `dc.platform.api.Platform`
@@ -33,26 +54,24 @@ class PosixPlatform : Platfrom
         import std.file;
         try
             remove(dst);
-        catch (FileException) { }
+        catch (FileException e) {}
     }
 
     /// See `dc.platform.api.Platform`
     void extract (string archive, string dst)
     {
-        import std.exception : enforce;
         import std.string : endsWith;
         import std.process : execute;
         import std.file : mkdirRecurse;
 
         mkdirRecurse(dst);
 
-        enforce(archive.endsWith(".tar.xz"));
-
-        auto status = execute([ "tar",
+        auto result = run([ "tar",
             "-xf", archive,
             "-C", dst,
-        ]).status;
+        ]);
 
-        enforce(status == 0, "Extracting has failed");
+        if (result.status != 0)
+            throw new ExtractionFailure(archive, dst, result.stderr);
     }
 }

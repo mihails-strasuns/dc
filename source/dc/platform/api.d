@@ -4,7 +4,9 @@
  */
 module dc.platform.api;
 
-interface Platform
+import dc.exception;
+
+public interface Platform
 {
     /**
         Downloads a remote file using platform-specific method.
@@ -32,7 +34,7 @@ interface Platform
             dst = absolute path to unlink/delete
     */
     void disable (string dst);
-    
+
     /**
         Extracts an archive using a platform-specific method
 
@@ -41,4 +43,67 @@ interface Platform
             src = path to directory to extract archive to
     */
     void extract (string archive, string dst);
+}
+
+///
+public class DownloadFailure : DcException
+{
+    this (string url, string msg, string file = __FILE__, size_t line = __LINE__)
+    {
+        import std.format;
+
+        auto details = msg;
+        msg = format("Download failure [%s]", url);
+        super(msg, details, file, line);
+    }
+}
+
+///
+public class FileFailure : DcException
+{
+    this (string path, string msg, string file = __FILE__, size_t line = __LINE__)
+    {
+        import std.format;
+
+        auto details = msg;
+        msg = format("Failure when working with path [%s]", path);
+        super(msg, details, file, line);
+    }
+}
+
+///
+public class ExtractionFailure : DcException
+{
+    this (string from, string to, string msg, string file = __FILE__, size_t line = __LINE__)
+    {
+        import std.format;
+
+        auto details = msg;
+        msg = format("Failure when extracting [%s] to [%s]", from, to);
+        super(msg, details, file, line);
+    }
+}
+
+///
+public class DependencyCheckFailure : DcException
+{
+    this (string msg, string file = __FILE__, size_t line = __LINE__)
+    {
+        super(msg, "", file, line);
+    }
+}
+
+/**
+    Eager replacement of result struct from std.process
+
+    Provides all stdout/stderr output already collected.
+*/
+package(dc.platform) struct ProcessResult
+{
+    /// return status
+    int status;
+    /// combined stdout
+    string stdout;
+    /// combined stderr
+    string stderr;
 }

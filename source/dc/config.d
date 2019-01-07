@@ -58,3 +58,6 @@ struct Config
         }
     }
 }
+
+///
+Config config;

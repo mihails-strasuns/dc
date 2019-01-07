@@ -1,67 +1,67 @@
 module dc.app;
 
-import dc.sandbox;
+import dc.dc;
 import dc.config;
 import dc.utils.path;
 import dc.platform.api;
+import dc.exception;
+import std.experimental.logger;
 
 void main (string[] args)
 {
-    import simpleconfig;
-
-    Config config;
-    args = readConfiguration(config);
-    args = args[1 .. $];
-
-    import std.exception;
-    enforce(args.length > 1, "Must specify an action");
-    auto action = args[0];
-
-    initSandbox(config.paths);
-
-    import dc.platform.construct;
-    auto platform = initializePlatform(config);
-
-    switch(action)
+    try
     {
-        case "use":
-            if (disableOldCompiler(config, platform, args[1]))
-            {
-                auto c = compiler(config, platform, args[1]);
-                c.fetch();
-                c.enable();
-            }
-            break;
+        import simpleconfig;
+        import dc.platform;
 
-        case "fetch":
-            if (disableOldCompiler(config, platform, args[1]))
-            {
-                auto c = compiler(config, platform, args[1]);
-                c.fetch();
-            }
-            break;
+        args = readConfiguration(config);
+        args = args[1 .. $];
 
-        default: enforce(false);
+        configureLogging();
+        initializePlatform();
+        initializeToolchainDir(config.paths);
+        auto context = parseAction(args);
+        handle(context);
+    }
+    catch (DcException e)
+    {
+        error(e.msg);
+
+        if (e.details.length)
+        {
+            info("Additional information:\n");
+            info(e.details);
+        }
+    }
+    catch (HelpMsgException)
+    {
+        info("Usage: dc COMMAND COMPILER [OPTIONS]");
+        info("");
+        info("COMMAND: action to perform");
+        info("\tuse - switch to specified compiler, disabling the current one if present");
+        info("\tfetch - download specified compiler distribution without affecting the current one");
+        info("");
+        info("COMPILER: compiler description string");
+        info("\tdmd-2.099.9 - example, describes DMD compiler of version 2.099.9");
     }
 }
 
-bool disableOldCompiler (Config config, Platform platform, string compiler_str)
+void configureLogging ()
 {
-    import std.file : readText, exists;
-
-    if (exists(config.paths.root ~ "USED"))
+    static class SimpleLogger : Logger
     {
-        auto current_compiler_str = readText(config.paths.root ~ "USED");
-
-        if (compiler_str == current_compiler_str)
-            return false;
-        else
+        this (LogLevel lv)
         {
-            auto current = compiler(config, platform, current_compiler_str);
-            current.disable();
-            return true;
+            super(lv);
         }
-    }
 
-    return true;
+        override void writeLogMsg (ref LogEntry payload)
+        {
+            import std.stdio;
+            writeln(payload.msg);
+        }
+}
+
+    // TODO: verbosity levels
+    sharedLog = new SimpleLogger(LogLevel.info);
 }
