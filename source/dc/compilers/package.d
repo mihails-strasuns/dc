@@ -1,6 +1,6 @@
 module dc.compilers;
 
-public import dc.compilers.base;
+public import dc.compilers.api;
 
 /**
     Creates a new compiler management object based on a
@@ -8,12 +8,16 @@ public import dc.compilers.base;
 
     Params:
         description = string of form "compiler-version"
+
+    Returns:
+        instance capable of manipulating compiler distribution
  */
-Compiler compiler (string description)
+auto compiler (string description)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
     import dc.config;
+    import dc.exception;
 
     string name;
     string ver;
@@ -24,6 +28,6 @@ Compiler compiler (string description)
         case "dmd":
             return new DMD(ver);
         default:
-            assert(false);
+            throw new DcException("Unsupported compiler", "");
     }
 }
