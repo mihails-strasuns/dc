@@ -12,10 +12,11 @@ public import dc.compilers.api;
     Returns:
         instance capable of manipulating compiler distribution
  */
-auto compiler (string description)
+Compiler compiler (string description)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
+    import dc.compilers.ldc;
     import dc.config;
     import dc.exception;
 
@@ -27,6 +28,8 @@ auto compiler (string description)
     {
         case "dmd":
             return new DMD(ver);
+        case "ldc":
+            return new LDC(ver);
         default:
             throw new DcException("Unsupported compiler", "");
     }

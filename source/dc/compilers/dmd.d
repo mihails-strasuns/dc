@@ -11,7 +11,6 @@ class DMD : Compiler
 {
     import dc.config;
     import dc.utils.path;
-    import dc.platform;
     import dc.compilers.common;
 
     CompilerDistribution distribution;

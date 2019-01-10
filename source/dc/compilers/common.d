@@ -45,7 +45,7 @@ struct CompilerDistribution
             platform.enable(file.from, file.to);
 
         import std.file : write;
-        write(config.paths.root ~ "USED", "dmd-" ~ this.representation);
+        write(config.paths.root ~ "USED", this.representation);
     }
 
     void disable ()
