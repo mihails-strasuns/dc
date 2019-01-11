@@ -1,0 +1,32 @@
+parameters:
+  binary:   ''
+
+steps:
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      artifactName: dc
+      downloadPath: .
+
+  - powershell: wget -O 7z.7z https://www.7-zip.org/a/7z1805-extra.7z
+    displayName: Download 7-zip portable package
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+  - task: ExtractFiles@1
+    displayName: Extract 7-zip binary
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+    inputs:
+      archiveFilePatterns: 7z.7z
+      destinationFolder: '7z'
+
+  - bash: chmod +x ./dc/${{ parameters.binary }}
+    condition: eq(variables['Agent.OS'], 'Linux')
+
+  - bash: |
+      ./dc/${{ parameters.binary }} use dmd-2.082.1
+      ./D/bin/dmd -run test/sample.d
+    displayName: Verify switching compiler works (1)
+
+  - bash: |
+      ./dc/${{ parameters.binary }} use ldc-1.13.0
+      ./D/bin/ldmd2 -run test/sample.d
+    displayName: Verify switching compiler works (2)
