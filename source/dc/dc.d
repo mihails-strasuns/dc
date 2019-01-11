@@ -4,7 +4,7 @@
 module dc.dc;
 
 import dc.utils.path;
-import dc.compilers.base;
+import dc.compilers.api;
 import dc.platform.api;
 import dc.config;
 
@@ -116,10 +116,8 @@ void initializeToolchainDir(Config.Paths paths)
 
     auto root = paths.root;
 
-    if (exists(root))
-        return;
-
-    infof("Creating D sandbox at '%s'", root);
+    if (!exists(root))
+        infof("Creating D sandbox at '%s'", root);
 
     foreach (dir; paths.tupleof)
         mkdirRecurse(dir);

@@ -67,7 +67,10 @@ class WindowsPlatform : Platform
         import std.format;
         import std.exception;
 
-        auto result = powershell(format(`wget -O "%s" "%s"`, path, url));
+        auto result = powershell(
+            "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12",
+            format(`wget -O "%s" "%s"`, path, url)
+        );
         if (result.status != 0)
             throw new DownloadFailure(url, result.stderr);
     }
