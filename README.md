@@ -1,5 +1,7 @@
 ## DC
 
+[![Build Status](https://dev.azure.com/mihailsstrasuns/mihailsstrasuns/_apis/build/status/mihails-strasuns.dc?branchName=master)](https://dev.azure.com/mihailsstrasuns/mihailsstrasuns/_build/latest?definitionId=2?branchName=master)
+
 Tool to help managing D compiler toolchain in uniform manner between Linux and Windows. Defines
 a folder where all tools and libraries can be stored and easily used as long as compiler is on PATH.
 
