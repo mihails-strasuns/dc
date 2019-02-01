@@ -57,8 +57,9 @@ class DMD : Compiler
 
         files ~= [
             PathPair(import_source ~ "phobos/std", config.paths.imports ~ "std"),
+            PathPair(import_source ~ "phobos/etc/c", config.paths.imports ~ "etc/c"),
             PathPair(import_source ~ "druntime/import/core", config.paths.imports ~ "core"),
-            PathPair(import_source ~ "druntime/import/etc", config.paths.imports ~ "etc"),
+            PathPair(import_source ~ "druntime/import/etc/linux", config.paths.imports ~ "etc/linux"),
             PathPair(import_source ~ "druntime/import/object.d", config.paths.imports ~ "object.d"),
         ];
 

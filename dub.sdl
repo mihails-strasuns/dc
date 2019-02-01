@@ -7,4 +7,4 @@ license "BSL"
 buildRequirements "allowWarnings"
 dflags "-static" platform="ldc"
 
-dependency "simpleconfig" version="~>0.2"
+dependency "simpleconfig" version="~>0.2.1"
