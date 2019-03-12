@@ -12,3 +12,8 @@
 *.lst
 /D
 dc.cfg
+Debug/
+Release/
+x64/
+x86/
+.vs/

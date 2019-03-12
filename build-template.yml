@@ -18,10 +18,10 @@ steps:
       archiveFilePatterns: ${{ parameters.archive }}
       destinationFolder: 'ldc'
 
-  - bash: ${{ parameters.bindir }}/dub test
+  - bash: ${{ parameters.bindir }}/dub test -v -a x86_64
     displayName: Run unittests
 
-  - bash: ${{ parameters.bindir }}/dub build
+  - bash: ${{ parameters.bindir }}/dub build -v -a x86_64
     displayName: Build application
 
   - task: PublishBuildArtifacts@1

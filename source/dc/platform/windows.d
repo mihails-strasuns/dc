@@ -4,6 +4,9 @@ version(Windows):
 
 import dc.platform.api;
 
+// from lib7z/extracttor.lib
+extern(C) int extract(const char* archive, const* char dest);
+
 class WindowsPlatform : Platform
 {
     /**
@@ -100,6 +103,8 @@ class WindowsPlatform : Platform
         import std.exception : enforce;
         import std.string : endsWith;
         import std.format;
+
+        .extract(null);
 
         auto result = powershell(format(`& "%s" x -o"%s" "%s"`, this.binary7z, dst, archive));
         if (result.status != 0)
