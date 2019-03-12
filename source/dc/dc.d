@@ -28,7 +28,7 @@ public enum Action
 public struct ActionContext
 {
     Action action;
-    Compiler new_compiler;
+    string new_compiler;
 }
 
 /**
@@ -62,7 +62,7 @@ ActionContext parseAction (string[] args)
     } ();
 
     import dc.compilers;
-    return ActionContext(action, compiler(args[1]));
+    return ActionContext(action, args[1]);
 }
 
 /**
@@ -82,23 +82,25 @@ void handle (ActionContext context)
             return null;
     } ();
 
+    Compiler new_compiler = compiler(context.new_compiler);
+
     if (context.action & Action.Disable)
     {
-        if (current_compiler !is null && current_compiler != context.new_compiler)
+        if (current_compiler !is null && current_compiler != new_compiler)
             current_compiler.disable();
     }
 
     if (context.action & Action.Fetch)
     {
-        assert(context.new_compiler !is null);
-        context.new_compiler.fetch();
+        assert(new_compiler !is null);
+        new_compiler.fetch();
     }
 
     if (context.action & Action.Enable)
     {
-        assert(context.new_compiler !is null);
-        if (context.new_compiler != current_compiler)
-            context.new_compiler.enable();
+        assert(new_compiler !is null);
+        if (new_compiler != current_compiler)
+            new_compiler.enable();
     }
 }
 

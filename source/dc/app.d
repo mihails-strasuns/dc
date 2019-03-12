@@ -16,11 +16,11 @@ void main (string[] args)
 
         args = readConfiguration(config);
         args = args[1 .. $];
+        auto context = parseAction(args);
 
         configureLogging();
         initializePlatform();
         initializeToolchainDir(config.paths);
-        auto context = parseAction(args);
         handle(context);
     }
     catch (DcException e)
