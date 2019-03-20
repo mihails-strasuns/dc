@@ -38,7 +38,7 @@ public void initializePlatform ()
             );
         }
 
-        checkPresent("curl");
+        checkPresent("wget");
         checkPresent("ln");
         checkPresent("tar");
 
