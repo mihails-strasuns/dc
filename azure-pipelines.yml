@@ -4,7 +4,7 @@ jobs:
     pool:
       vmImage: 'ubuntu 16.04'
     steps:
-      - template: build-template.yml
+      - template: ci/build-template.yml
         parameters:
           url: https://github.com/ldc-developers/ldc/releases/download/v1.14.0/ldc2-1.14.0-linux-x86_64.tar.xz
           bindir: ldc/ldc2-1.14.0-linux-x86_64/bin
@@ -15,17 +15,10 @@ jobs:
     pool:
       vmImage: 'vs2017-win2016'
     steps:
-      - task: VSBuild@1
-        inputs:
-          solution: lib7z/lib7z.sln
-          platform: x64
-          configuration: Release
-        displayName: Build 7z SDK
-
-      - template: build-template.yml
+      - template: ci/build-template.yml
         parameters:
           url: https://github.com/ldc-developers/ldc/releases/download/v1.14.0/ldc2-1.14.0-windows-x64.7z
-          bindir: ldc/ldc2-1.14.0-windows-x64/bin
+          bindir: ldc\ldc2-1.14.0-windows-x64\bin
           archive: ldc.7z
           binary: dc.exe
 
@@ -34,7 +27,7 @@ jobs:
       vmImage: 'vs2017-win2016'
     dependsOn: Build_Windows
     steps:
-      - template: test-template.yml
+      - template: ci/test-template.yml
         parameters:
           binary: dc.exe
 
@@ -43,6 +36,6 @@ jobs:
       vmImage: 'ubuntu 16.04'
     dependsOn: Build_Linux
     steps:
-      - template: test-template.yml
+      - template: ci/test-template.yml
         parameters:
           binary: dc
