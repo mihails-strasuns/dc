@@ -5,7 +5,7 @@ version(Windows):
 import dc.platform.api;
 
 // from lib7z/extracttor.lib
-extern(C) int extract(const char* archive, const* char dest);
+extern(C) int extract(const char* archive, const char* dest);
 
 class WindowsPlatform : Platform
 {
@@ -48,20 +48,11 @@ class WindowsPlatform : Platform
         );
     }
 
-    private {
-        string binary7z;
-    }
-
     /**
         Constructor
-
-        Params:
-            binary7z = 7z.exe or 7za.exe, as deduced by environment check
     */
-    this (string binary7z)
+    this ()
     {
-        assert(binary7z.length > 0);
-        this.binary7z = binary7z;
     }
 
     /// See `dc.platform.api.Platform`
@@ -100,14 +91,11 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void extract (string archive, string dst)
     {
-        import std.exception : enforce;
-        import std.string : endsWith;
-        import std.format;
+        import std.path : absolutePath;
+        import std.string : toStringz;
 
-        .extract(null);
-
-        auto result = powershell(format(`& "%s" x -o"%s" "%s"`, this.binary7z, dst, archive));
-        if (result.status != 0)
-            throw new ExtractionFailure(archive, dst, result.stderr);
+        auto result = .extract(toStringz(archive), toStringz(absolutePath(dst)));
+        if (result != 0)
+            throw new ExtractionFailure(archive, dst, "Extraction failure");
     }
 }

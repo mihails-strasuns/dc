@@ -30,13 +30,6 @@ struct Config
     /// automatically from `this.sandbox`
     Paths paths;
 
-    version(Windows)
-    {
-        /// Path to 7z.exe or 7za.exe
-        @cfg("path_to_7z") @cli("path-to-7z")
-        Path path7z;
-    }
-
     void finalizeConfig ()
     {
         with (this.paths)
@@ -46,15 +39,6 @@ struct Config
             lib = root ~ "lib";
             versions = root ~ "versions";
             imports = root ~ "imports";
-        }
-
-        version (Windows)
-        {
-            // default is currently chosen with CI in mind, should
-            // be adjusted in final version:
-
-            if (this.path7z.length == 0)
-                this.path7z = Path(".\\7z\\7za.exe");
         }
     }
 }
