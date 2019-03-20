@@ -22,12 +22,7 @@ public void initializePlatform ()
                 "Couldn't spawn PowerShell sub-process"
         );
 
-        enforce!DependencyCheckFailure(
-            WindowsPlatform.powershell(format(`& "%s" -h`, config.path7z)).status == 0,
-            "Path to 7z.exe or 7za.exe must be specified via configuration file or CLI argument"
-        );
-
-        platform = new WindowsPlatform(config.path7z);
+        platform = new WindowsPlatform;
     }
     else version (Posix)
     {
@@ -43,7 +38,7 @@ public void initializePlatform ()
             );
         }
 
-        checkPresent("curl");
+        checkPresent("wget");
         checkPresent("ln");
         checkPresent("tar");
 
