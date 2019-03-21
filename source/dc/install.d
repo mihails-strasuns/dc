@@ -27,7 +27,7 @@ bool installIfNeeded (ref Path root)
     else
         root = Path(dirName(binary_path));
 
-    import std.file : mkdirRecurse, copy, remove;
+    import std.file : mkdirRecurse, copy;
     import dc.utils.path : subDirectories;
     import std.path : baseName;
 
@@ -36,7 +36,23 @@ bool installIfNeeded (ref Path root)
 
     auto new_path = root ~ "bin" ~ baseName(binary_path);
     copy(binary_path, new_path);
-    remove(binary_path);
+
+    version (Posix)
+    {
+        import std.file : remove;
+
+        remove(binary_path);
+    }
+    else version (Windows)
+    {
+        // Windows does not allow binary to remove itself but it can ask OS
+        // to remove it upon next reboot:
+
+        import core.sys.windows.winbase;
+        import std.string;
+
+        MoveFileExA(toStringz(binary_path), null, MOVEFILE_DELAY_UNTIL_REBOOT);
+    }
 
     version (Posix)
     {
