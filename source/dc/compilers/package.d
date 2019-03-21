@@ -1,6 +1,7 @@
 module dc.compilers;
 
 public import dc.compilers.api;
+import dc.utils.path : Path;
 
 /**
     Creates a new compiler management object based on a
@@ -12,12 +13,11 @@ public import dc.compilers.api;
     Returns:
         instance capable of manipulating compiler distribution
  */
-Compiler compiler (string description)
+Compiler compiler (string description, Path root)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
     import dc.compilers.ldc;
-    import dc.config;
     import dc.exception;
 
     string name;
@@ -27,9 +27,9 @@ Compiler compiler (string description)
     switch (name)
     {
         case "dmd":
-            return new DMD(ver);
+            return new DMD(ver, root);
         case "ldc":
-            return new LDC(ver);
+            return new LDC(ver, root);
         default:
             throw new DcException("Unsupported compiler", "");
     }

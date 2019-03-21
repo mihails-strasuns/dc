@@ -6,7 +6,6 @@ module dc.dc;
 import dc.utils.path;
 import dc.compilers.api;
 import dc.platform.api;
-import dc.config;
 
 
 /**
@@ -69,20 +68,20 @@ ActionContext parseAction (string[] args)
     Implements main toolchain management logic. Lower level implementation
     is provided via `dc.compilers` and `dc.platfrom` packages.
  */
-void handle (ActionContext context)
+void handle (ActionContext context, Path root)
 {
     import dc.compilers;
 
     Compiler current_compiler = () {
         import std.file : readText, exists;
 
-        if (exists(config.paths.root ~ "USED"))
-            return compiler(readText(config.paths.root ~ "USED"));
+        if (exists(root ~ "USED"))
+            return compiler(readText(root ~ "USED"), root);
         else
             return null;
     } ();
 
-    Compiler new_compiler = compiler(context.new_compiler);
+    Compiler new_compiler = compiler(context.new_compiler, root);
 
     if (context.action & Action.Disable)
     {
@@ -102,25 +101,4 @@ void handle (ActionContext context)
         if (new_compiler != current_compiler)
             new_compiler.enable();
     }
-}
-
-/**
-    Ensures the presence of a required directory structure for
-    the D toolchain directory
-
-    Params:
-        paths = part of configuration describing sandbox path layout
- */
-void initializeToolchainDir(Config.Paths paths)
-{
-    import std.file : mkdirRecurse, exists;
-    import std.experimental.logger;
-
-    auto root = paths.root;
-
-    if (!exists(root))
-        infof("Creating D sandbox at '%s'", root);
-
-    foreach (dir; paths.tupleof)
-        mkdirRecurse(dir);
 }

@@ -1,7 +1,6 @@
 module dc.platform;
 
 public import dc.platform.api;
-import dc.config;
 
 /**
     Initializes matching Platform implementation for the current platform

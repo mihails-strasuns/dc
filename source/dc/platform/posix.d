@@ -38,10 +38,12 @@ class PosixPlatform : Platform
     /// See `dc.platform.api.Platform`
     void enable (string src, string dst)
     {
-        import std.file : symlink, FileException;
+        import std.file : symlink, FileException, mkdirRecurse;
+        import std.path : dirName;
 
         try
         {
+            mkdirRecurse(dirName(dst));
             symlink(src, dst);
         }
         catch (FileException e)

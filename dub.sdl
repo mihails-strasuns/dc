@@ -8,5 +8,3 @@ buildRequirements "allowWarnings"
 dflags "-static" platform="ldc"
 // requires building the solution first with msbuild:
 libs "lib7z\\x64\\Release\\extractor" platform="windows"
-
-dependency "simpleconfig" version="~>0.2.1"

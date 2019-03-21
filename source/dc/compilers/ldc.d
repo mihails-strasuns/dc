@@ -8,23 +8,24 @@ import dc.compilers.api;
 ///
 class LDC : Compiler
 {
-    import dc.config;
     import dc.utils.path;
     import dc.compilers.common;
 
     CompilerDistribution distribution;
     alias distribution this;
 
-    this (string ver)
+    this (string ver, Path root)
     {
-        super("ldc", ver);
+        super(root, "ldc", ver);
+
+        auto dirs = SubDirectories(root);
 
         version (Windows)
-            auto archive = config.paths.versions ~ ("ldc-" ~ ver ~ ".7z");
+            auto archive = dirs.versions ~ ("ldc-" ~ ver ~ ".7z");
         else version (Posix)
-            auto archive = config.paths.versions ~ ("ldc-" ~ ver ~ ".tar.xz");
+            auto archive = dirs.versions ~ ("ldc-" ~ ver ~ ".tar.xz");
 
-        auto source = config.paths.versions ~ ("ldc-" ~ ver);
+        auto source = dirs.versions ~ ("ldc-" ~ ver);
 
         PathPair[] files;
 
@@ -39,66 +40,66 @@ class LDC : Compiler
         version (Windows)
         {
             files ~= [
-                PathPair(bin_source ~ "ldc2.exe", config.paths.bin ~ "ldc2.exe"),
-                PathPair(bin_source ~ "ldmd2.exe", config.paths.bin ~ "ldmd2.exe"),
-                PathPair(bin_source ~ "rdmd.exe", config.paths.bin ~ "rdmd.exe"),
-                PathPair(bin_source ~ "dub.exe", config.paths.bin ~ "dub.exe"),
+                PathPair(bin_source ~ "ldc2.exe", dirs.bin ~ "ldc2.exe"),
+                PathPair(bin_source ~ "ldmd2.exe", dirs.bin ~ "ldmd2.exe"),
+                PathPair(bin_source ~ "rdmd.exe", dirs.bin ~ "rdmd.exe"),
+                PathPair(bin_source ~ "dub.exe", dirs.bin ~ "dub.exe"),
 
-                PathPair(lib_source ~ "druntime-ldc.lib", config.paths.lib ~ "druntime-ldc.lib"),
-                PathPair(lib_source ~ "druntime-ldc-debug.lib", config.paths.lib ~ "druntime-ldc-debug.lib"),
-                PathPair(lib_source ~ "druntime-ldc-lto.lib", config.paths.lib ~ "druntime-ldc-lto.lib"),
-                PathPair(lib_source ~ "phobos2-ldc.lib", config.paths.lib ~ "phobos2-ldc.lib"),
-                PathPair(lib_source ~ "phobos2-ldc-debug.lib", config.paths.lib ~ "phobos2-ldc-debug.lib"),
-                PathPair(lib_source ~ "phobos2-ldc-lto.lib", config.paths.lib ~ "phobos2-ldc-lto.lib"),
-                PathPair(lib_source ~ "ldc-jit-rt.lib", config.paths.lib ~ "ldc-jit-rt.lib"),
-                PathPair(lib_source ~ "ldc-jit.lib", config.paths.lib ~ "ldc-jit.lib"),
-                PathPair(lib_source ~ "ldc_rt.asan.lib", config.paths.lib ~ "ldc_rt.asan.lib"),
-                PathPair(lib_source ~ "ldc_rt.builtins.lib", config.paths.lib ~ "ldc_rt.builtins.lib"),
-                PathPair(lib_source ~ "ldc_rt.profile.lib", config.paths.lib ~ "ldc_rt.profile.lib"),
-                PathPair(lib_source ~ "curl.lib", config.paths.lib ~ "curl.lib"),
-                PathPair(lib_source ~ "mingw", config.paths.lib ~ "mingw"),
+                PathPair(lib_source ~ "druntime-ldc.lib", dirs.lib ~ "druntime-ldc.lib"),
+                PathPair(lib_source ~ "druntime-ldc-debug.lib", dirs.lib ~ "druntime-ldc-debug.lib"),
+                PathPair(lib_source ~ "druntime-ldc-lto.lib", dirs.lib ~ "druntime-ldc-lto.lib"),
+                PathPair(lib_source ~ "phobos2-ldc.lib", dirs.lib ~ "phobos2-ldc.lib"),
+                PathPair(lib_source ~ "phobos2-ldc-debug.lib", dirs.lib ~ "phobos2-ldc-debug.lib"),
+                PathPair(lib_source ~ "phobos2-ldc-lto.lib", dirs.lib ~ "phobos2-ldc-lto.lib"),
+                PathPair(lib_source ~ "ldc-jit-rt.lib", dirs.lib ~ "ldc-jit-rt.lib"),
+                PathPair(lib_source ~ "ldc-jit.lib", dirs.lib ~ "ldc-jit.lib"),
+                PathPair(lib_source ~ "ldc_rt.asan.lib", dirs.lib ~ "ldc_rt.asan.lib"),
+                PathPair(lib_source ~ "ldc_rt.builtins.lib", dirs.lib ~ "ldc_rt.builtins.lib"),
+                PathPair(lib_source ~ "ldc_rt.profile.lib", dirs.lib ~ "ldc_rt.profile.lib"),
+                PathPair(lib_source ~ "curl.lib", dirs.lib ~ "curl.lib"),
+                PathPair(lib_source ~ "mingw", dirs.lib ~ "mingw"),
             ];
         }
         else version (Posix)
         {
             files ~= [
-                 PathPair(bin_source ~ "ldc2", config.paths.bin ~ "ldc2"),
-                 PathPair(bin_source ~ "ldmd2", config.paths.bin ~ "ldmd2"),
-                 PathPair(bin_source ~ "rdmd", config.paths.bin ~ "rdmd"),
-                 PathPair(bin_source ~ "dub", config.paths.bin ~ "dub"),
+                 PathPair(bin_source ~ "ldc2", dirs.bin ~ "ldc2"),
+                 PathPair(bin_source ~ "ldmd2", dirs.bin ~ "ldmd2"),
+                 PathPair(bin_source ~ "rdmd", dirs.bin ~ "rdmd"),
+                 PathPair(bin_source ~ "dub", dirs.bin ~ "dub"),
 
-                 PathPair(lib_source ~ "libdruntime-ldc.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libdruntime-ldc.a", dirs.lib ~
                          "libdruntime-ldc.a"),
                  PathPair(lib_source ~ "libdruntime-ldc-debug.a",
-                         config.paths.lib ~ "libdruntime-ldc-debug.a"),
-                 PathPair(lib_source ~ "libdruntime-ldc-lto.a", config.paths.lib
+                         dirs.lib ~ "libdruntime-ldc-debug.a"),
+                 PathPair(lib_source ~ "libdruntime-ldc-lto.a", dirs.lib
                          ~ "libdruntime-ldc-lto.a"),
-                 PathPair(lib_source ~ "libphobos2-ldc.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libphobos2-ldc.a", dirs.lib ~
                          "libphobos2-ldc.a"),
                  PathPair(lib_source ~ "libphobos2-ldc-debug.a",
-                         config.paths.lib ~ "libphobos2-ldc-debug.a"),
-                 PathPair(lib_source ~ "libphobos2-ldc-lto.a", config.paths.lib
+                         dirs.lib ~ "libphobos2-ldc-debug.a"),
+                 PathPair(lib_source ~ "libphobos2-ldc-lto.a", dirs.lib
                          ~ "libphobos2-ldc-lto.a"),
-                 PathPair(lib_source ~ "libldc-jit-rt.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libldc-jit-rt.a", dirs.lib ~
                          "libldc-jit-rt.a"),
-                 PathPair(lib_source ~ "libldc-jit.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libldc-jit.a", dirs.lib ~
                          "libldc-jit.a"),
-                 PathPair(lib_source ~ "libldc_rt.asan.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libldc_rt.asan.a", dirs.lib ~
                          "libldc_rt.asan.a"),
-                 PathPair(lib_source ~ "libldc_rt.builtins.a", config.paths.lib
+                 PathPair(lib_source ~ "libldc_rt.builtins.a", dirs.lib
                          ~ "libldc_rt.builtins.a"),
-                 PathPair(lib_source ~ "libldc_rt.profile.a", config.paths.lib ~
+                 PathPair(lib_source ~ "libldc_rt.profile.a", dirs.lib ~
                          "libldc_rt.profile.a"),
             ];
 
         }
 
         files ~= [
-            PathPair(import_source ~ "core", config.paths.imports ~ "core"),
-            PathPair(import_source ~ "std", config.paths.imports ~ "std"),
-            PathPair(import_source ~ "etc", config.paths.imports ~ "etc"),
-            PathPair(import_source ~ "ldc", config.paths.imports ~ "ldc"),
-            PathPair(import_source ~ "object.d", config.paths.imports ~ "object.d"),
+            PathPair(import_source ~ "core", dirs.imports ~ "core"),
+            PathPair(import_source ~ "std", dirs.imports ~ "std"),
+            PathPair(import_source ~ "etc", dirs.imports ~ "etc"),
+            PathPair(import_source ~ "ldc", dirs.imports ~ "ldc"),
+            PathPair(import_source ~ "object.d", dirs.imports ~ "object.d"),
         ];
 
         this.distribution = CompilerDistribution(
@@ -131,7 +132,7 @@ class LDC : Compiler
 
     override void enable ()
     {
-        this.distribution.enable();
+        this.distribution.enable(this.root);
         generateConfig();
     }
 
@@ -139,7 +140,7 @@ class LDC : Compiler
     {
         import std.stdio : File;
 
-        auto config = new File(config.paths.bin ~ "ldc2.conf", "w");
+        auto config = new File(this.root ~ "bin" ~ "ldc2.conf", "w");
         config.write(
             q{
                 default:
@@ -163,6 +164,6 @@ class LDC : Compiler
 
     override void disable ()
     {
-        this.distribution.disable();
+        this.distribution.disable(this.root);
     }
  }
