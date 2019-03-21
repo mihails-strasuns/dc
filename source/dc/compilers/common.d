@@ -3,7 +3,6 @@
  */
 module dc.compilers.common;
 
-import dc.config;
 import dc.utils.path;
 import dc.platform;
 import std.experimental.logger;
@@ -37,7 +36,7 @@ struct CompilerDistribution
             platform.extract(archive, this.source);
     }
 
-    void enable ()
+    void enable (Path root)
     {
         infof("Setting %s as currently active compiler", this.representation);
 
@@ -45,10 +44,10 @@ struct CompilerDistribution
             platform.enable(file.from, file.to);
 
         import std.file : write;
-        write(config.paths.root ~ "USED", this.representation);
+        write(root ~ "USED", this.representation);
     }
 
-    void disable ()
+    void disable (Path root)
     {
         import std.experimental.logger;
         infof("Disabling currently active compiler %s", this.representation);
@@ -56,6 +55,6 @@ struct CompilerDistribution
         foreach (file; this.files)
             platform.disable(file.to);
 
-        platform.disable(config.paths.root ~ "USED");
+        platform.disable(root ~ "USED");
     }
 }

@@ -11,11 +11,12 @@ steps:
     condition: eq(variables['Agent.OS'], 'Linux')
 
   - bash: |
-      ./dc/${{ parameters.binary }} use dmd-2.082.1
+      mkdir -p D && mv ./dc/${{ parameters.binary }} D/
+      ./D/${{ parameters.binary }} use dmd-2.082.1
       ./D/bin/dmd -run test/sample.d
     displayName: Verify switching compiler works (1)
 
   - bash: |
-      ./dc/${{ parameters.binary }} use ldc-1.13.0
+      ./D/bin/${{ parameters.binary }} use ldc-1.13.0
       ./D/bin/ldmd2 -run test/sample.d
     displayName: Verify switching compiler works (2)

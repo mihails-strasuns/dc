@@ -1,5 +1,7 @@
 module dc.compilers.api;
 
+import dc.utils.path : Path;
+
 /**
     Compiler management abstraction. Specific implementation has to know
     about actual paths and configuration needed to make compiler placed
@@ -32,13 +34,15 @@ abstract class Compiler
     }
 
     ///
-    this (string name, string ver)
+    this (Path root, string name, string ver)
     {
+        this.root = root;
         this.name = name;
         this.ver = ver;
     }
 
     protected {
+        Path root;
         string name;
         string ver;
     }

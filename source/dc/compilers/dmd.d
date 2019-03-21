@@ -9,23 +9,24 @@ import dc.compilers.api;
 ///
 class DMD : Compiler
 {
-    import dc.config;
     import dc.utils.path;
     import dc.compilers.common;
 
     CompilerDistribution distribution;
     alias distribution this;
 
-    this (string ver)
+    this (string ver, Path root)
     {
-        super("dmd", ver);
+        super(root, "dmd", ver);
+
+        auto dirs = SubDirectories(root);
 
         version (Windows)
-            auto archive = config.paths.versions ~ ("dmd-" ~ ver ~ ".7z");
+            auto archive = dirs.versions ~ ("dmd-" ~ ver ~ ".7z");
         else version (Posix)
-            auto archive = config.paths.versions ~ ("dmd-" ~ ver ~ ".tar.xz");
+            auto archive = dirs.versions ~ ("dmd-" ~ ver ~ ".tar.xz");
 
-        auto source = config.paths.versions ~ ("dmd-" ~ ver);
+        auto source = dirs.versions ~ ("dmd-" ~ ver);
 
         PathPair[] files;
 
@@ -35,10 +36,10 @@ class DMD : Compiler
             auto lib_source = source ~ "dmd2" ~ "windows" ~ "lib64";
 
             files ~= [
-                PathPair(bin_source ~ "dmd.exe", config.paths.bin ~ "dmd.exe"),
-                PathPair(bin_source ~ "dub.exe", config.paths.bin ~ "dub.exe"),
-                PathPair(lib_source ~ "phobos64.lib", config.paths.lib ~ "phobos64.lib"),
-                PathPair(lib_source ~ "curl.lib", config.paths.lib ~ "curl.lib")
+                PathPair(bin_source ~ "dmd.exe", dirs.bin ~ "dmd.exe"),
+                PathPair(bin_source ~ "dub.exe", dirs.bin ~ "dub.exe"),
+                PathPair(lib_source ~ "phobos64.lib", dirs.lib ~ "phobos64.lib"),
+                PathPair(lib_source ~ "curl.lib", dirs.lib ~ "curl.lib")
             ];
         }
         else version (Posix)
@@ -47,20 +48,20 @@ class DMD : Compiler
             auto lib_source = source ~ "dmd2" ~ "linux" ~ "lib64";
 
             files ~= [
-                PathPair(bin_source ~ "dmd", config.paths.bin ~ "dmd"),
-                PathPair(bin_source ~ "dub", config.paths.bin ~ "dub"),
-                PathPair(lib_source ~ "libphobos2.a", config.paths.lib ~ "libphobos2.a")
+                PathPair(bin_source ~ "dmd", dirs.bin ~ "dmd"),
+                PathPair(bin_source ~ "dub", dirs.bin ~ "dub"),
+                PathPair(lib_source ~ "libphobos2.a", dirs.lib ~ "libphobos2.a")
             ];
         }
 
         auto import_source = source ~ "dmd2" ~ "src";
 
         files ~= [
-            PathPair(import_source ~ "phobos/std", config.paths.imports ~ "std"),
-            PathPair(import_source ~ "phobos/etc/c", config.paths.imports ~ "etc/c"),
-            PathPair(import_source ~ "druntime/import/core", config.paths.imports ~ "core"),
-            PathPair(import_source ~ "druntime/import/etc/linux", config.paths.imports ~ "etc/linux"),
-            PathPair(import_source ~ "druntime/import/object.d", config.paths.imports ~ "object.d"),
+            PathPair(import_source ~ "phobos/std", dirs.imports ~ "std"),
+            PathPair(import_source ~ "phobos/etc/c", dirs.imports ~ "etc/c"),
+            PathPair(import_source ~ "druntime/import/core", dirs.imports ~ "core"),
+            PathPair(import_source ~ "druntime/import/etc/linux", dirs.imports ~ "etc/linux"),
+            PathPair(import_source ~ "druntime/import/object.d", dirs.imports ~ "object.d"),
         ];
 
         this.distribution = CompilerDistribution(
@@ -93,7 +94,7 @@ class DMD : Compiler
 
     override void enable ()
     {
-        this.distribution.enable();
+        this.distribution.enable(this.root);
         generateConfig();
     }
 
@@ -103,7 +104,7 @@ class DMD : Compiler
 
         version (Windows)
         {
-            auto config = new File(config.paths.bin ~ "sc.ini", "w");
+            auto config = new File(this.root ~ "bin" ~ "sc.ini", "w");
             config.writeln("[Environment]");
             config.writeln(`DFLAGS="-I%@P%\..\imports" -m64`);
             config.writeln(`LIB="%@P%\..\lib"`);
@@ -111,7 +112,7 @@ class DMD : Compiler
         }
         else version (Posix)
         {
-            auto config = new File(config.paths.bin ~ "dmd.conf", "w");
+            auto config = new File(this.root ~ "bin" ~ "dmd.conf", "w");
             config.writeln("[Environment]");
             config.writeln("DFLAGS=-I%@P%/../imports -L-L%@P%/../lib -L--export-dynamic -fPIC");
             config.close();
@@ -120,6 +121,6 @@ class DMD : Compiler
 
     override void disable ()
     {
-        this.distribution.disable();
+        this.distribution.disable(this.root);
     }
  }

@@ -1,7 +1,6 @@
 module dc.app;
 
 import dc.dc;
-import dc.config;
 import dc.utils.path;
 import dc.platform.api;
 import dc.exception;
@@ -11,17 +10,25 @@ void main (string[] args)
 {
     try
     {
-        import simpleconfig;
-        import dc.platform;
-
-        args = readConfiguration(config);
-        args = args[1 .. $];
-        auto context = parseAction(args);
-
         configureLogging();
+
+        import dc.platform;
+        import dc.install;
+
+        Path toolchain_dir;
+        if (installIfNeeded(toolchain_dir))
+        {
+            infof("Initial setup done, toolchain directory created at %s",
+                toolchain_dir);
+        }
+
+        if (args.length == 1)
+            return;
+
+        auto context = parseAction(args[1 .. $]);
+
         initializePlatform();
-        initializeToolchainDir(config.paths);
-        handle(context);
+        handle(context, toolchain_dir);
     }
     catch (DcException e)
     {
@@ -35,7 +42,7 @@ void main (string[] args)
     }
     catch (HelpMsgException)
     {
-        info("Usage: dc COMMAND COMPILER [OPTIONS]");
+        info("Usage: dc COMMAND COMPILER");
         info("");
         info("COMMAND: action to perform");
         info("\tuse - switch to specified compiler, disabling the current one if present");
