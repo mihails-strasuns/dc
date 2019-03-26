@@ -1,0 +1,24 @@
+parameters:
+  url: ''
+  bindir: ''
+  archive: ''
+  binary:   ''
+
+steps:
+  - bash: wget -O ${{ parameters.archive }} ${{ parameters.url }}
+    displayName: Download compiler package
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: ${{ parameters.archive }}
+      destinationFolder: 'ldc'
+
+  - bash: |
+      ${{ parameters.bindir }}/dub test -a x86_64
+      ${{ parameters.bindir }}/dub build -a x86_64
+    displayName: Build application
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: ${{ parameters.binary }}
+      artifactName: dc

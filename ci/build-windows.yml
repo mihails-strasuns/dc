@@ -11,7 +11,6 @@ steps:
       platform: x64
       configuration: Release
     displayName: Build 7z SDK
-    condition: eq(variables['Agent.OS'], 'Windows_NT')
 
   - powershell: wget -O ${{ parameters.archive }} ${{ parameters.url }}
     displayName: Download compiler package
@@ -21,20 +20,13 @@ steps:
       archiveFilePatterns: ${{ parameters.archive }}
       destinationFolder: 'ldc'
 
-  - script: ci\windows.bat
-    env:
-      bindir: ${{ parameters.bindir }}
-    displayName: Build application (Windows)
-    condition: eq(variables['Agent.OS'], 'Windows_NT')
-
-  - script: ci/linux.sh
-    env:
-      bindir: ${{ parameters.bindir }}
-    displayName: Build application (Linux)
-    condition: eq(variables['Agent.OS'], 'Linux')
+  - script: |
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+      ${{ parameters.bindir }}\dub test -a x86_64
+      ${{ parameters.bindir }}\dub build -a x86_64
+    displayName: Build application
 
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: ${{ parameters.binary }}
       artifactName: dc
-
