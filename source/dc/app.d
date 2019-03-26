@@ -10,12 +10,23 @@ void main (string[] args)
 {
     try
     {
-        configureLogging();
+        import std.getopt;
+
+        bool verbose;
+        auto argresult = getopt(
+            args,
+            "v|verbose", &verbose
+        );
+        if (argresult.helpWanted)
+            throw new HelpMsgException;
+
+        configureLogging(verbose);
 
         import dc.platform;
         import dc.install;
 
         Path toolchain_dir;
+
         if (installIfNeeded(toolchain_dir))
         {
             infof("Initial setup done, toolchain directory created at %s",
@@ -53,7 +64,7 @@ void main (string[] args)
     }
 }
 
-void configureLogging ()
+void configureLogging (bool verbose)
 {
     static class SimpleLogger : Logger
     {
@@ -69,6 +80,5 @@ void configureLogging ()
         }
 }
 
-    // TODO: verbosity levels
-    sharedLog = new SimpleLogger(LogLevel.info);
+    sharedLog = new SimpleLogger(verbose ? LogLevel.trace : LogLevel.info);
 }

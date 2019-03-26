@@ -3,6 +3,7 @@ module dc.platform.posix;
 version(Posix):
 
 import dc.platform.api;
+import dc.utils.trace;
 
 class PosixPlatform : Platform
 {
@@ -27,6 +28,8 @@ class PosixPlatform : Platform
     /// See `dc.platform.api.Platform`
     void download (string url, string path)
     {
+        mixin(traceCall());
+
         import std.format;
         import std.exception;
 
@@ -38,6 +41,8 @@ class PosixPlatform : Platform
     /// See `dc.platform.api.Platform`
     void enable (string src, string dst)
     {
+        mixin(traceCall());
+
         import std.file : symlink, FileException, mkdirRecurse;
         import std.path : dirName;
 
@@ -53,6 +58,8 @@ class PosixPlatform : Platform
     /// See `dc.platform.api.Platform`
     void disable (string dst)
     {
+        mixin(traceCall());
+
         import std.file;
         try
             remove(dst);
@@ -62,6 +69,8 @@ class PosixPlatform : Platform
     /// See `dc.platform.api.Platform`
     void extract (string archive, string dst)
     {
+        mixin(traceCall());
+
         import std.string : endsWith;
         import std.process : execute;
         import std.file : mkdirRecurse;

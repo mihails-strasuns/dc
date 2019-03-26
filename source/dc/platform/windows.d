@@ -3,6 +3,8 @@ module dc.platform.windows;
 version(Windows):
 
 import dc.platform.api;
+import dc.utils.trace;
+import std.experimental.logger;
 
 // from lib7z/extracttor.lib
 extern(C) int extract(const char* archive, const char* dest);
@@ -26,6 +28,7 @@ class WindowsPlatform : Platform
         import std.range : join;
 
         auto command_s = commands.join("; ");
+        trace("[powershell] ", command_s);
 
         import std.process;
 
@@ -41,11 +44,18 @@ class WindowsPlatform : Platform
         import std.stdio : KeepTerminator;
         import std.range : join;
 
-        return ProcessResult(
+        auto result = ProcessResult(
             status,
             proc.stdout.byLine(KeepTerminator.no, newline).join("\n").idup,
             proc.stderr.byLine(KeepTerminator.no, newline).join("\n").idup
         );
+
+        if (result.stdout.length)
+            trace(result.stdout);
+        if (result.stderr.length)
+            trace(result.stderr);
+
+        return result;
     }
 
     /**
@@ -58,6 +68,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void download (string url, string path)
     {
+        mixin(traceCall());
+
         import std.format;
         import std.exception;
 
@@ -72,6 +84,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void enable (string src, string dst)
     {
+        mixin(traceCall());
+
         import std.format;
         import std.exception;
 
@@ -83,6 +97,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void disable (string dst)
     {
+        mixin(traceCall());
+
         import std.format;
 
         powershell(format(`Remove-Item -Recurse -Force "%s"`, dst));
@@ -91,6 +107,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void extract (string archive, string dst)
     {
+        mixin(traceCall());
+
         import std.path : absolutePath;
         import std.string : toStringz;
 
