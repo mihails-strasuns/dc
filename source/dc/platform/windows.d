@@ -3,6 +3,7 @@ module dc.platform.windows;
 version(Windows):
 
 import dc.platform.api;
+import std.experimental.logger;
 
 // from lib7z/extracttor.lib
 extern(C) int extract(const char* archive, const char* dest);
@@ -26,6 +27,7 @@ class WindowsPlatform : Platform
         import std.range : join;
 
         auto command_s = commands.join("; ");
+        trace("[powershell] ", command_s);
 
         import std.process;
 
@@ -41,11 +43,18 @@ class WindowsPlatform : Platform
         import std.stdio : KeepTerminator;
         import std.range : join;
 
-        return ProcessResult(
+        auto result = ProcessResult(
             status,
             proc.stdout.byLine(KeepTerminator.no, newline).join("\n").idup,
             proc.stderr.byLine(KeepTerminator.no, newline).join("\n").idup
         );
+
+        if (result.stdout.length)
+            trace(result.stdout);
+        if (result.stderr.length)
+            trace(result.stderr);
+
+        return result;
     }
 
     /**
