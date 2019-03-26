@@ -3,6 +3,7 @@ module dc.platform.windows;
 version(Windows):
 
 import dc.platform.api;
+import dc.utils.trace;
 import std.experimental.logger;
 
 // from lib7z/extracttor.lib
@@ -67,6 +68,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void download (string url, string path)
     {
+        mixin(traceCall());
+
         import std.format;
         import std.exception;
 
@@ -81,6 +84,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void enable (string src, string dst)
     {
+        mixin(traceCall());
+
         import std.format;
         import std.exception;
 
@@ -92,6 +97,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void disable (string dst)
     {
+        mixin(traceCall());
+
         import std.format;
 
         powershell(format(`Remove-Item -Recurse -Force "%s"`, dst));
@@ -100,6 +107,8 @@ class WindowsPlatform : Platform
     /// See `dc.platform.api.Platform`
     void extract (string archive, string dst)
     {
+        mixin(traceCall());
+
         import std.path : absolutePath;
         import std.string : toStringz;
 
