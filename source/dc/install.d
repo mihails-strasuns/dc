@@ -62,6 +62,8 @@ bool installIfNeeded (ref Path root)
         setAttributes(new_path, octal!555);
     }
 
+    addToPath(root ~ "bin");
+
     return true;
 }
 
@@ -69,7 +71,7 @@ bool installIfNeeded (ref Path root)
     Returns: true if currently running binary is already placed into initialized
         directory structure
  */
-bool isInstalled (Path toolchain_dir)
+private bool isInstalled (Path toolchain_dir)
 {
     import std.file : exists;
     import dc.utils.path : subDirectories;
@@ -81,4 +83,53 @@ bool isInstalled (Path toolchain_dir)
     }
 
     return true;
+}
+
+/**
+    Adds toolchain bin folder to current user PATH env variable
+ */
+private void addToPath (Path bindir)
+{
+    import std.process;
+    import std.algorithm.searching;
+
+    if (environment["PATH"].canFind(bindir.toString()))
+        return;
+
+    version (Windows)
+    {
+        import dc.platform.windows;
+
+        WindowsPlatform.powershell(`setx PATH "%PATH%;` ~ bindir ~ `"`);
+    }
+    else version(Posix)
+    {
+        bool checkAndAdd (Path config)
+        {
+            import std.file : exists, append;
+            import std.format;
+
+            if (exists(config))
+            {
+                trace("Appending PATH adjustment to ", config);
+                append(config, format("\nexport PATH=\"$PATH:%s\" # added by DC\n", bindir));
+                return true;
+            }
+            else
+                return false;
+        }
+
+        static immutable paths = [
+            "~/.bash_aliases",
+            "~/.bashrc",
+            "~/.bash_profile",
+            "~/.profile"
+        ];
+
+        foreach (path; paths)
+        {
+            if (checkAndAdd(Path(path)))
+                break;
+        }
+    }
 }

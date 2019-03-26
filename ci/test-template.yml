@@ -12,11 +12,15 @@ steps:
 
   - bash: |
       mkdir -p D && mv ./dc/${{ parameters.binary }} D/
-      ./D/${{ parameters.binary }} -v use dmd-2.082.1
-      ./D/bin/dmd -run test/sample.d
+      ./D/${{ parameters.binary }} -v
+    displayName: Verify initial setup
+
+  - bash: |
+      dc -v use dmd-2.082.1
+      dmd -run test/sample.d
     displayName: Verify switching compiler works (1)
 
   - bash: |
-      ./D/bin/${{ parameters.binary }} -v use ldc-1.13.0
-      ./D/bin/ldmd2 -run test/sample.d
+      dc -v use ldc-1.13.0
+      ldmd2 -run test/sample.d
     displayName: Verify switching compiler works (2)
