@@ -12,11 +12,23 @@ steps:
 
   - bash: |
       mkdir -p D && mv ./dc/${{ parameters.binary }} D/
-      ./D/${{ parameters.binary }} -v use dmd-2.082.1
-      ./D/bin/dmd -run test/sample.d
+      ./D/${{ parameters.binary }} -v
+    displayName: Verify initial setup
+
+  - powershell: Write-Host "##vso[task.setvariable variable=PATH;]${env:PATH};./D/bin";
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+    displayName: Add bin to CI PATH (Windows)
+
+  - bash: echo "##vso[task.setvariable variable=PATH;]$PATH:./D/bin";
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: Add bin to CI PATH (Linux)
+
+  - bash: |
+      dc -v use dmd-2.082.1
+      dmd -run test/sample.d
     displayName: Verify switching compiler works (1)
 
   - bash: |
-      ./D/bin/${{ parameters.binary }} -v use ldc-1.13.0
-      ./D/bin/ldmd2 -run test/sample.d
+      dc -v use ldc-1.13.0
+      ldmd2 -run test/sample.d
     displayName: Verify switching compiler works (2)
