@@ -87,8 +87,10 @@ class WindowsPlatform : Platform
         mixin(traceCall());
 
         import std.format;
-        import std.exception;
+        import std.file : mkdirRecurse;
+        import std.path : dirName;
 
+        mkdirRecurse(dirName(dst));
         auto result = powershell(format(`cp -r "%s" "%s"`, src, dst));
         if (result.status != 0)
             throw new FileFailure(dst, result.stderr);
