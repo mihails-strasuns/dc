@@ -70,3 +70,4 @@ jobs:
             tagSource: 'manual'
             tag: '$(Build.SourceBranchName)'
             addChangeLog: false
+            assets: '$(Build.ArtifactStagingDirectory)'
