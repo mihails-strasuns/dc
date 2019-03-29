@@ -13,7 +13,7 @@ import dc.utils.path : Path;
     Returns:
         instance capable of manipulating compiler distribution
  */
-Compiler compiler (string description, Path root)
+Compiler compilerFromDescription (string description, Path root)
 {
     import std.format : formattedRead;
     import dc.compilers.dmd;
@@ -33,4 +33,30 @@ Compiler compiler (string description, Path root)
         default:
             throw new DcException("Unsupported compiler", "");
     }
+}
+
+/**
+    Creates a new compiler management object based on a
+    'USED' anchor file present in existing installation.
+
+    Params:
+        anchor = path to 'USED' file
+
+    Returns:
+        instance capable of manipulating compiler distribution
+ */
+Compiler compilerFromAnchor (Path anchor, Path root)
+{
+    import std.stdio : File;
+    import std.algorithm : map;
+    import std.string : strip;
+    import std.array;
+
+    auto lines = File(anchor).byLineCopy.array();
+    auto description = lines[0];
+
+    auto compiler = compilerFromDescription(description, root);
+    compiler.registerExistingFiles(
+        lines[1 .. $].map!(line => Path(strip(line))).array());
+    return compiler;
 }

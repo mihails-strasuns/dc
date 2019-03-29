@@ -47,21 +47,23 @@ public class HelpMsgException : Exception
  */
 ActionContext parseAction (string[] args)
 {
-    if (args.length != 2)
-        throw new HelpMsgException;
+    import std.exception;
 
-    auto action = () {
-        switch (args[0])
-        {
-            case "use":   return (Action.Fetch | Action.Disable | Action.Enable);
-            case "fetch": return Action.Fetch;
+    enforce!HelpMsgException(args.length >= 1);
 
-            default: assert(false);
-        }
-    } ();
+    switch (args[0])
+    {
+        case "use":
+            enforce!HelpMsgException(args.length == 2);
+            return ActionContext(Action.Fetch | Action.Disable | Action.Enable, args[1]);
+        case "fetch":
+            enforce!HelpMsgException(args.length == 2);
+            return ActionContext(Action.Fetch, args[1]);
+        case "disable":
+            return ActionContext(Action.Disable, null);
 
-    import dc.compilers;
-    return ActionContext(action, args[1]);
+        default: assert(false);
+    }
 }
 
 /**
@@ -76,12 +78,14 @@ void handle (ActionContext context, Path root)
         import std.file : readText, exists;
 
         if (exists(root ~ "USED"))
-            return compiler(readText(root ~ "USED"), root);
+            return compilerFromAnchor(root ~ "USED", root);
         else
             return null;
     } ();
 
-    Compiler new_compiler = compiler(context.new_compiler, root);
+    Compiler new_compiler = context.new_compiler ?
+          compilerFromDescription(context.new_compiler, root)
+        : null;
 
     if (context.action & Action.Disable)
     {

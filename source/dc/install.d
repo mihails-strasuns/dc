@@ -93,6 +93,7 @@ private void addToPath (Path bindir)
     import std.process;
     import std.algorithm.searching;
 
+    trace("Current PATH is: ", environment["PATH"]);
     if (environment["PATH"].canFind(bindir.toString()))
         return;
 

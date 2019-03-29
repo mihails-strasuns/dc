@@ -43,16 +43,14 @@ class PosixPlatform : Platform
     {
         mixin(traceCall());
 
-        import std.file : symlink, FileException, mkdirRecurse;
+        import std.file : mkdirRecurse;
         import std.path : dirName;
+        import std.process;
 
-        try
-        {
-            mkdirRecurse(dirName(dst));
-            symlink(src, dst);
-        }
-        catch (FileException e)
-            throw new FileFailure(dst, e.msg);
+        mkdirRecurse(dirName(dst));
+        auto result = execute([ "cp", "-r", src, dst ]);
+        if (result.status != 0)
+            throw new FileFailure(dst, result.output);
     }
 
     /// See `dc.platform.api.Platform`
@@ -60,10 +58,10 @@ class PosixPlatform : Platform
     {
         mixin(traceCall());
 
-        import std.file;
-        try
-            remove(dst);
-        catch (FileException e) {}
+        import std.process;
+        auto result = execute([ "rm", "-rf", dst ]);
+        if (result.status != 0)
+            throw new FileFailure(dst, result.output);
     }
 
     /// See `dc.platform.api.Platform`

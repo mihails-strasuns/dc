@@ -17,7 +17,10 @@ struct Path
     this (string rhs)
     {
         this.normalized = absolutePath(expandTilde(rhs));
-        enforce(isValidPath(this.normalized));
+        enforce(
+            isValidPath(this.normalized),
+            "Not a valid path: '" ~ this.normalized ~ "'"
+        );
     }
 
     /// Quick way to append to existing path, ensures there is exactly

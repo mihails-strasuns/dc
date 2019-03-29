@@ -15,46 +15,78 @@ struct PathPair
 
 struct CompilerDistribution
 {
-    string representation;
-    Path archive;
-    Path source;
-    PathPair[] files;
+    private Path[] active;
 
-    void fetch (string url)
+    string representation;
+
+    this (string repr)
     {
-        import std.experimental.logger;
+        this.representation = repr;
+    }
+
+    void registerExistingFiles (Path[] files)
+    {
+        this.active ~= files;
+    }
+
+    void fetch (string url, Path archive, Path source)
+    {
         import std.file : exists;
         import std.format;
 
         if (!exists(archive))
         {
             infof("Downloading new compiler distribution for %s", this.representation);
-            platform.download(url, this.archive);
+            platform.download(url, archive);
         }
 
         if (!exists(source))
-            platform.extract(archive, this.source);
+            platform.extract(archive, source);
     }
 
-    void enable (Path root)
+    void enable (PathPair[] files, Path root)
     {
         infof("Setting %s as currently active compiler", this.representation);
 
-        foreach (file; this.files)
+        foreach (file; files)
+        {
             platform.enable(file.from, file.to);
+            this.active ~= file.to;
+        }
 
-        import std.file : write;
-        write(root ~ "USED", this.representation);
+        import std.stdio : File;
+
+        auto used = File(root ~ "USED", "w");
+        used.writeln(this.representation);
+        foreach (file; this.active)
+            used.writeln(file.toString());
+        used.close();
     }
 
     void disable (Path root)
     {
-        import std.experimental.logger;
         infof("Disabling currently active compiler %s", this.representation);
 
-        foreach (file; this.files)
-            platform.disable(file.to);
+        foreach (file; this.active)
+            platform.disable(file);
 
         platform.disable(root ~ "USED");
+    }
+}
+
+void addAll (Path from, Path to, ref PathPair[] files, string pattern = "")
+{
+    import std.file : dirEntries, SpanMode;
+    import std.path : relativePath;
+
+    if (pattern.length)
+    {
+        foreach (entry; dirEntries(from, pattern, SpanMode.depth))
+            files ~= PathPair(Path(entry.name), to ~ relativePath(entry.name, from));
+    }
+    else
+    {
+        foreach (entry; dirEntries(from, SpanMode.depth))
+            files ~= PathPair(Path(entry.name), to ~ relativePath(entry.name, from));
     }
 }

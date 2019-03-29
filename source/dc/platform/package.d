@@ -38,7 +38,6 @@ public void initializePlatform ()
         }
 
         checkPresent("wget");
-        checkPresent("ln");
         checkPresent("tar");
 
         platform = new PosixPlatform;
