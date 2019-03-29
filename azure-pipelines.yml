@@ -5,8 +5,12 @@ trigger:
   branches:
     include:
       - 'master'
-  pr:
-    - 'master'
+
+pr:
+  autoCancel: true
+  branches:
+    include:
+      - 'master'
 
 jobs:
   - job: Build_Linux
