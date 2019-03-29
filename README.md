@@ -11,17 +11,22 @@ Most useful when doing cross-platform development with a lot of switching betwee
 
 - Download latest release for your platform from https://github.com/mihails-strasuns/dc/releases
 - Create a folder where all toolchain will be stored (`$D-DIR`) and put downloaded binary inside it
-- Run the binary once with no argument to create the initial directory structure
-- Add `$D-DIR/bin` to `$PATH` as appropriate for your platform
+- Run the binary once with no argument to create the initial directory
+  structure. It will try adding itself `$PATH` for the current user as appropriate for your platform.
+  Note that this will only have effect on the next login.
 - Run command to download and enable first toolchain. For example, `dc use dmd-2.083.2`.
 
 ## Temporary limitations
 
 This is early version and has plenty of limitations that should be eventually lifted:
 
-- No support for switching toolchain within single shell context (like `activate` from `install.sh`)
-- No multilib support
-- No shared library support. It is not yet clear how to make it work while keeping resulting binaries portable.
+- No support for switching toolchain within single shell context (like
+  `activate` from `install.sh`). It doesn't fit well with DC approach of reusing
+  single `bin` folder for all versions - some design idea is needed to move
+  forward with it.
+- No shared library support. It is not yet clear how to make it work while
+  keeping resulting binaries portable. Adding naive support would be trivial
+  but misleading thus left out until there is any demand.
 
 ## Intentional limitations
 
