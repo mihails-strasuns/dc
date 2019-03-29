@@ -14,8 +14,9 @@ steps:
       destinationFolder: 'ldc'
 
   - bash: |
-      ${{ parameters.bindir }}/dub test -a x86_64
-      ${{ parameters.bindir }}/dub build -a x86_64
+      ${{ parameters.bindir }}/dub test -a x86_64 -b release
+      ${{ parameters.bindir }}/dub build -a x86_64 -b release
+      strip dc
     displayName: Build application
 
   - task: PublishBuildArtifacts@1
