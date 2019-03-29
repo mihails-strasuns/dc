@@ -39,3 +39,16 @@ jobs:
       - template: ci/test-template.yml
         parameters:
           binary: dc
+
+  - job: Release
+    pool:
+      vmImage: 'ubuntu 16.04'
+    dependsOn:
+      - Test_Linux
+      - Test_Windows
+    steps:
+        - task: GithubRelease@0
+          condition: and(succeeded(), contains(variables['Build.SourceBranch'], 'refs/tags/'))
+          inputs:
+            gitHubConnection: github-oauth
+            action: create
