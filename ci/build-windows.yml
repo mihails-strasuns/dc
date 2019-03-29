@@ -22,8 +22,8 @@ steps:
 
   - script: |
       call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
-      ${{ parameters.bindir }}\dub test -a x86_64
-      ${{ parameters.bindir }}\dub build -a x86_64
+      ${{ parameters.bindir }}\dub test -a x86_64 -b release
+      ${{ parameters.bindir }}\dub build -a x86_64 -b release
     displayName: Build application
 
   - task: PublishBuildArtifacts@1
