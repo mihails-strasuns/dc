@@ -9,6 +9,8 @@ import dc.utils.path : Path;
  */
 abstract class Compiler
 {
+    import dc.compilers.common;
+
     /// Downloads compiler and stored in the sandbox cache
     void fetch ();
 
@@ -21,7 +23,7 @@ abstract class Compiler
     /// Standard text representation of this compiler description
     string representation ()
     {
-        return this.name ~ "-" ~ this.ver;
+        return this.config.name ~ "-" ~ this.config.ver;
     }
 
     ///
@@ -34,16 +36,37 @@ abstract class Compiler
     }
 
     ///
-    this (Path root, string name, string ver)
+    this (Config config)
     {
-        this.root = root;
-        this.name = name;
-        this.ver = ver;
+        this.config = config;
+
+        this.distribution = CompilerDistribution(
+            this.representation()
+        );
+    }
+
+    ///
+    final void registerExistingFiles (Path[] files)
+    {
+        this.distribution.registerExistingFiles(files);
     }
 
     protected {
-        Path root;
-        string name;
-        string ver;
+        struct Config
+        {
+            /// root of whole toolchain directory
+            Path root;
+            /// path to extracted compiler distribution directory
+            Path source;
+            /// path to downloaded compiler distribution archive
+            Path archive;
+            /// compiler name (dmd|ldc|gdc)
+            string name;
+            /// compiler version string, i.e. "2.080.0"
+            string ver;
+        }
+
+        Config config;
+        CompilerDistribution distribution;
     }
 }

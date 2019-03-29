@@ -60,7 +60,6 @@ ActionContext parseAction (string[] args)
         }
     } ();
 
-    import dc.compilers;
     return ActionContext(action, args[1]);
 }
 
@@ -76,12 +75,12 @@ void handle (ActionContext context, Path root)
         import std.file : readText, exists;
 
         if (exists(root ~ "USED"))
-            return compiler(readText(root ~ "USED"), root);
+            return compilerFromAnchor(root ~ "USED", root);
         else
             return null;
     } ();
 
-    Compiler new_compiler = compiler(context.new_compiler, root);
+    Compiler new_compiler = compilerFromDescription(context.new_compiler, root);
 
     if (context.action & Action.Disable)
     {
