@@ -42,27 +42,6 @@ struct Path
     alias toString this;
 }
 
-/// Returns: fully-qualified filesystem path to the currently running executable
-Path currentProcessBinary ()
-{
-    import std.process : thisProcessID;
-
-    version (Windows)
-    {
-        import core.sys.windows.winbase : GetModuleFileNameA;
-
-        char[1024] buffer;
-        auto ln = GetModuleFileNameA(null, buffer.ptr, buffer.length);
-        return Path(buffer[0 .. ln].idup);
-    }
-    else version (Posix)
-    {
-        import std.file : readLink;
-        import std.format;
-        return Path(readLink(format("/proc/%s/exe", thisProcessID())));
-    }
-}
-
 /// Sub-directories to create inside toolchain directory
 static immutable subDirectories = [
     "bin",

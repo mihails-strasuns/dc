@@ -11,10 +11,10 @@ import std.experimental.logger;
  */
 bool installIfNeeded (ref Path root)
 {
-    import dc.utils.path : currentProcessBinary;
     import std.path : dirName;
+    import std.file : thisExePath;
 
-    Path binary_path = currentProcessBinary();
+    Path binary_path = thisExePath();
     Path toolchain_dir = Path(dirName(dirName(binary_path)));
 
     bool installed = isInstalled(toolchain_dir);
