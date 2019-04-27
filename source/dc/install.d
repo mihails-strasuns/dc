@@ -93,15 +93,18 @@ private void addToPath (Path bindir)
     import std.process;
     import std.algorithm.searching;
 
-    trace("Current PATH is: ", environment["PATH"]);
-    if (environment["PATH"].canFind(bindir.toString()))
+    auto current_path = environment["PATH"];
+    trace("Current PATH is: ", current_path);
+    if (current_path.canFind(bindir.toString()))
         return;
 
     version (Windows)
     {
         import dc.platform.windows;
+        import std.format;
 
-        WindowsPlatform.powershell(`setx PATH "%PATH%;` ~ bindir ~ `"`);
+        WindowsPlatform.powershell(format(
+            `setx PATH "%s;%s"`, current_path, bindir));
     }
     else version(Posix)
     {
