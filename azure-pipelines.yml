@@ -61,6 +61,11 @@ jobs:
       - Test_Linux
       - Test_Windows
     steps:
+        - task: DownloadBuildArtifacts@0
+          inputs:
+            artifactName: dc
+            downloadPath: .
+
         - task: GithubRelease@0
           inputs:
             gitHubConnection: github-oauth
@@ -70,4 +75,4 @@ jobs:
             tagSource: 'manual'
             tag: '$(Build.SourceBranchName)'
             addChangeLog: false
-            assets: '$(Build.ArtifactStagingDirectory)'
+            assets: dc/*
