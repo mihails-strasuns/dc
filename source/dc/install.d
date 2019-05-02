@@ -100,11 +100,44 @@ private void addToPath (Path bindir)
 
     version (Windows)
     {
-        import dc.platform.windows;
-        import std.format;
+        import core.sys.windows.winreg;
+        import core.sys.windows.windef;
+        import core.sys.windows.winnt;
+        import std.exception;
 
-        WindowsPlatform.powershell(format(
-            `setx PATH "%s;%s"`, current_path, bindir));
+        HKEY folder;
+        auto result = RegOpenKeyEx(
+            HKEY_CURRENT_USER,
+            "Environment",
+            0,
+            KEY_QUERY_VALUE | KEY_SET_VALUE,
+            &folder
+        );
+        enforce(result == ERROR_SUCCESS);
+
+        auto value = new char[2048];
+        uint value_length = cast(uint) value.length;
+        result = RegQueryValueExA(
+            folder,
+            "Path",
+            null,
+            null,
+            value.ptr,
+            &value_length
+        );
+        enforce(result == ERROR_SUCCESS);
+        value = (value[0 .. value_length - 1] ~ ";" ~ bindir ~ "\0");
+        result = RegSetValueExA(
+            folder,
+            "Path",
+            0,
+            REG_SZ,
+            cast(ubyte*) value.ptr,
+            cast(uint) value.length
+        );
+        enforce(result == ERROR_SUCCESS);
+        result = RegCloseKey(folder);
+        enforce(result == ERROR_SUCCESS);
     }
     else version(Posix)
     {
