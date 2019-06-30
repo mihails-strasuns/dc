@@ -6,7 +6,7 @@ import dc.platform.api;
 import dc.exception;
 import std.experimental.logger;
 
-void main (string[] args)
+int main (string[] args)
 {
     try
     {
@@ -50,6 +50,8 @@ void main (string[] args)
             info("Additional information:\n");
             info(e.details);
         }
+
+        return -1;
     }
     catch (HelpMsgException)
     {
@@ -63,6 +65,8 @@ void main (string[] args)
         info("COMPILER: compiler description string");
         info("\tdmd-2.099.9 - example, describes DMD compiler of version 2.099.9");
     }
+
+    return 0;
 }
 
 void configureLogging (bool verbose)
