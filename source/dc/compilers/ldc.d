@@ -70,7 +70,7 @@ class LDC : Compiler
         else
             enum lib_pattern = "*.a";
         addAll(lib_source, dirs.lib, files, lib_pattern);
-        addAll(import_source, dirs.imports, files, "{*.d,*.di}");
+        addShallow(import_source, dirs.imports, files);
 
         this.distribution.enable(files, this.config.root);
         generateConfig();
