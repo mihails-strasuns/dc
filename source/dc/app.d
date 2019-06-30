@@ -34,7 +34,7 @@ int main (string[] args)
         }
 
         if (args.length == 1)
-            return;
+            return 0;
 
         auto context = parseAction(args[1 .. $]);
 
