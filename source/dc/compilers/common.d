@@ -74,19 +74,33 @@ struct CompilerDistribution
     }
 }
 
+import std.file : SpanMode;
+
 void addAll (Path from, Path to, ref PathPair[] files, string pattern = "")
+{
+    add(from, to, files, SpanMode.depth, pattern);
+}
+
+void addShallow (Path from, Path to, ref PathPair[] files, string pattern = "")
+{
+    add(from, to, files, SpanMode.shallow, pattern);
+}
+
+private void add (Path from, Path to, ref PathPair[] files, SpanMode mode,
+    string pattern = "")
 {
     import std.file : dirEntries, SpanMode;
     import std.path : relativePath;
 
     if (pattern.length)
     {
-        foreach (entry; dirEntries(from, pattern, SpanMode.depth))
+        foreach (entry; dirEntries(from, pattern, mode))
             files ~= PathPair(Path(entry.name), to ~ relativePath(entry.name, from));
     }
     else
     {
-        foreach (entry; dirEntries(from, SpanMode.depth))
+        foreach (entry; dirEntries(from, mode))
             files ~= PathPair(Path(entry.name), to ~ relativePath(entry.name, from));
     }
 }
+

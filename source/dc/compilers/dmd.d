@@ -67,17 +67,18 @@ class DMD : Compiler
         }
 
         addAll(bin_source, dirs.bin, files);
-                version(Windows)
+
+        version(Windows)
             enum lib_pattern = "*.lib";
         else
             enum lib_pattern = "*.a";
         addAll(lib_source, dirs.lib, files, lib_pattern);
 
-        auto phobos_source = this.config.source ~ "dmd2" ~ "src" ~ "phobos";
+        auto phobos_source = this.config.source ~ "dmd2" ~ "src" ~ "phobos" ~ "std";
         auto druntime_source = this.config.source ~ "dmd2" ~ "src" ~ "druntime" ~ "import";
 
-        addAll(phobos_source, dirs.imports, files, "{*.d,*.di}");
-        addAll(druntime_source, dirs.imports, files, "{*.d,*.di}");
+        files ~= PathPair(phobos_source, dirs.imports ~ "std");
+        addShallow(druntime_source, dirs.imports, files);
 
         this.distribution.enable(files, this.config.root);
         generateConfig();
