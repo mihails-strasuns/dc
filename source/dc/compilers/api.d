@@ -20,6 +20,9 @@ abstract class Compiler
     /// Disables currently enabled compiler
     void disable ();
 
+    /// Returns direct path to a portable distribution bin folder
+    Path distributionBinPath ();
+
     /// Standard text representation of this compiler description
     string representation ()
     {

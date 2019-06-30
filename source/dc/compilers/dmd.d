@@ -109,4 +109,12 @@ class DMD : Compiler
     {
         this.distribution.disable(this.config.root);
     }
+
+    override Path distributionBinPath ()
+    {
+        version (Windows)
+            return this.config.source ~ "dmd2" ~ "windows" ~ "bin";
+        else
+            return this.config.source ~ "dmd2" ~ "linux" ~ "bin64";
+    }
  }

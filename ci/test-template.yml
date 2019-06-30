@@ -32,3 +32,8 @@ steps:
       dc -v use ldc-1.13.0
       ldmd2 -run test/sample.d
     displayName: Verify switching compiler works (2)
+
+  - bash: |
+      export PATH=$PATH:`dc path dmd-2.082.1`
+      dmd -run test/sample.d
+    displayName: Verify switching compiler works (3)

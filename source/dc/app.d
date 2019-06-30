@@ -60,6 +60,7 @@ int main (string[] args)
         info("COMMAND: action to perform");
         info("\tuse - switch to specified compiler, disabling the current one if present");
         info("\tfetch - download specified compiler distribution without affecting the current one");
+        info("\tpath - print a path to distribution bindir of a given compiler");
         info("\tdisable - disable currently used compiler (but keep distribution archive)");
         info("");
         info("COMPILER: compiler description string");
