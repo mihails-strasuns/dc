@@ -20,10 +20,6 @@ Most useful when doing cross-platform development with a lot of switching betwee
 
 This is early version and has plenty of limitations that should be eventually lifted:
 
-- No support for switching toolchain within single shell context (like
-  `activate` from `install.sh`). It doesn't fit well with DC approach of reusing
-  single `bin` folder for all versions - some design idea is needed to move
-  forward with it.
 - No shared library support. It is not yet clear how to make it work while
   keeping resulting binaries portable. Adding naive support would be trivial
   but misleading thus left out until there is any demand.

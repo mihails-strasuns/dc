@@ -6,6 +6,7 @@ module dc.dc;
 import dc.utils.path;
 import dc.compilers.api;
 import dc.platform.api;
+import std.experimental.logger;
 
 
 /**
@@ -19,6 +20,9 @@ public enum Action
     Disable = 1 << 1,
     /// Switch to the specified compiler
     Enable  = 1 << 2,
+    /// Print a path to the bindir of the specified compiler without installing
+    /// anything (but still fetch the distribution if needed)
+    Path   = 1 << 3,
 }
 
 /**
@@ -61,6 +65,8 @@ ActionContext parseAction (string[] args)
             return ActionContext(Action.Fetch, args[1]);
         case "disable":
             return ActionContext(Action.Disable, null);
+        case "path":
+            return ActionContext(Action.Fetch | Action.Path, args[1]);
 
         default: assert(false);
     }
@@ -73,6 +79,10 @@ ActionContext parseAction (string[] args)
 void handle (ActionContext context, Path root)
 {
     import dc.compilers;
+
+    // disable informational output to be able to forward printed script to shell
+    if (context.action & Action.Path)
+        sharedLog.logLevel = LogLevel.error;
 
     Compiler current_compiler = () {
         import std.file : readText, exists;
@@ -104,5 +114,15 @@ void handle (ActionContext context, Path root)
         assert(new_compiler !is null);
         if (new_compiler != current_compiler)
             new_compiler.enable();
+    }
+
+    if (context.action & Action.Path)
+    {
+        assert(new_compiler !is null);
+
+        import std.stdio;
+
+        auto path = new_compiler.distributionBinPath();
+        writeln(path);
     }
 }

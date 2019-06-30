@@ -106,4 +106,18 @@ class LDC : Compiler
     {
         this.distribution.disable(this.config.root);
     }
+
+    override Path distributionBinPath ()
+    {
+        version (Windows)
+        {
+            return this.config.source ~ ("ldc2-" ~ this.config.ver ~
+                "-windows-x64") ~ "bin";
+        }
+        else version (Posix)
+        {
+            return this.config.source ~ ("ldc2-" ~ this.config.ver ~
+                "-linux-x86_64") ~ "bin";
+        }
+    }
  }
